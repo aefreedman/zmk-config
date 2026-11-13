@@ -1,3 +1,19 @@
+# aefreedman's Halcyon Elora ZMK config
+
+[Public config repository](https://github.com/aefreedman/zmk-config), based on
+splitkb's official template. The Reviung41 port is not implemented or build-ready
+yet. The firmware job is explicitly disabled until the custom keymap is ready.
+See [the compatibility audit](docs/reviung-port-audit.md) for feature differences,
+source revisions, validation, and remaining layout decisions.
+
+Hardware targets: dongle central; LiPo on both halves; left e-ink display
+(provisional forest image); right Halcyon encoder. RGB is disabled.
+
+The intended layout keeps the entire top row unassigned for future macros/functions;
+numbers remain on the Reviung-style NUM layer. Space is right-hand only.
+
+---
+
 # Official Splitkb.com Halcyon ZMK config
 
 This is the Splitkb Halcyon ZMK config repository. It allows for an external set of ZMK keymaps with or without Halcyon modules to be defined and compiled. If you want to add support to your existing keyboard, please look at the [porting guide](PORTING.md).
