@@ -1,0 +1,7 @@
+description: Reviung tap dances with keycode-aware rollover and shared one-shot state
+compatible: "aefreedman,reviung-dance"
+include: one_param.yaml
+properties:
+  symbol-layer:
+    type: int
+    required: true

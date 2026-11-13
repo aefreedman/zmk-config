@@ -2,8 +2,12 @@ name: Build ZMK firmware
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check layout and test production gesture engine
+        run: python3 tests/run.py
   build:
-    # Enable only after config/halcyon_elora.keymap is ported and validated.
-    # Otherwise ZMK falls back to the module's unwanted default number-row map.
-    if: false
+    needs: checks
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main

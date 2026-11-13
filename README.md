@@ -1,10 +1,11 @@
 # aefreedman's Halcyon Elora ZMK config
 
 [Public config repository](https://github.com/aefreedman/zmk-config), based on
-splitkb's official template. The Reviung41 port is not implemented or build-ready
-yet. The firmware job is explicitly disabled until the custom keymap is ready.
-See [the compatibility audit](docs/reviung-port-audit.md) for feature differences,
-source revisions, validation, and remaining layout decisions.
+splitkb's official template. The initial eight-layer Reviung41 port and custom
+tap-dance implementation are ready for build validation, not hardware-validated.
+See [layout, behaviors, and testing](docs/layout.md) and the original
+[compatibility audit](docs/reviung-port-audit.md). GitHub Actions runs host checks
+before building firmware for all three devices.
 
 Hardware targets: dongle central; LiPo on both halves; left e-ink display
 (provisional forest image); right Halcyon encoder. RGB is disabled.

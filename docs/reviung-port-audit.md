@@ -2,11 +2,11 @@
 
 ## Status and scope
 
-Bootstrap and source audit, with hardware build targets configured for publication
-at https://github.com/aefreedman/zmk-config (public).
-No Elora keymap has been implemented, firmware built/flashed, or toolchain installed.
-The firmware job is explicitly disabled until the custom keymap is ready.
-The bundled default keymap (in the Halcyon module) is NOT the desired layout.
+Historical source audit below; implementation status is tracked in
+[layout.md](layout.md). The initial eight-layer port and custom gesture engine
+are now implemented, with host tests and three firmware targets enabled for
+build validation. No firmware has been flashed or hardware tested.
+Public repository: https://github.com/aefreedman/zmk-config.
 
 Requirements:
 - Base the layout on aefreedman's Reviung41 keymap, not splitkb's default map.
@@ -30,8 +30,7 @@ Requirements:
 
 QMK and ZMK checkouts are shallow/sparse source references, not installed build
 workspaces. The config's west manifest retains splitkb's recommended firmware
-fork and Halcyon module. Those manifest branches are floating, not pinned to the
-reviewed commits above.
+fork and Halcyon module. The manifest is now pinned to the reviewed commits above.
 
 QMK source: `keyboards/reviung/reviung41/keymaps/aefreedman/`
 (`keymap.c`, `config.h`, `rules.mk`, and both test suites).
@@ -40,7 +39,9 @@ QMK source: `keyboards/reviung/reviung41/keymaps/aefreedman/`
 
 No fundamental blocker found for the intended layout. However, exact parity
 with the custom C callbacks is NOT provided by a simple keycode translation.
-Behavior composition is a candidate approach, not yet implemented or tested.
+The table records the initial assessment of stock behaviors. The implementation
+now uses a custom gesture engine instead of nested behavior composition; see
+layout.md for the implemented semantics and remaining differences.
 
 | Existing feature | ZMK assessment |
 | --- | --- |
@@ -112,13 +113,13 @@ Confirmed build topology:
   `halcyon_elora_right mod_battery_lipo mod_encoder_right`.
 - Disable RGB. No Cirque module requested.
 
-Remaining decisions:
-1. Space is confirmed right-only. Proposed remaining thumb functions: GUI and
-   Shift/Symbol on the left; NUM/Backspace and FUNC/Delete on the right.
-   Choose exact physical positions and leave other new positions unassigned.
-2. Exact custom gesture parity versus an initial approximation. Do not silently
-   simplify the Shift/Ctrl/Alt dances.
+Initial implementation choices (pending hardware evaluation):
+1. Space right-only; GUI and Shift/Symbol on the left; NUM/Backspace and
+   FUNC/Delete on the right. See layout.md for exact thumb indices.
+2. Custom code implements the multi-tap/hold gestures and rollover rule;
+   differences and validation limitations are explicit in layout.md.
 3. Forest is the provisional e-ink image; mountain/cityscape can replace it later.
+4. Encoder rotation provisionally controls volume; encoder press remains blank.
 
 Hardware identifiers are `halcyon_wireless//zmk` and
 `halcyon_elora_left` / `halcyon_elora_right`, optionally
