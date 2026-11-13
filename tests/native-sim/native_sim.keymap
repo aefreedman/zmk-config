@@ -1,0 +1,45 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../../config/halcyon_elora.keymap"
+#include <dt-bindings/zmk/kscan_mock.h>
+
+&kscan {
+    rows = <1>;
+    columns = <72>;
+    events = <
+        /* Shift + NUM, two arrow selections >3 seconds apart. */
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_PRESS(0,58,300)
+        ZMK_MOCK_PRESS(0,31,10)
+        ZMK_MOCK_RELEASE(0,31,3100)
+        ZMK_MOCK_PRESS(0,31,10)
+        ZMK_MOCK_RELEASE(0,31,10)
+        ZMK_MOCK_RELEASE(0,58,10)
+        ZMK_MOCK_RELEASE(0,55,300)
+        /* Fast ordinary-key rollover: Shift is one-shot, not a held mod. */
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,10)
+        ZMK_MOCK_RELEASE(0,55,300)
+        /* Double-tap Ctrl/Alt -> queued Ctrl+Alt consumed by A. */
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Double-tap Shift/Symbol -> one-shot symbol at the same position. */
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_RELEASE(0,55,20)
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_RELEASE(0,55,250)
+        ZMK_MOCK_PRESS(0,26,10)
+        ZMK_MOCK_RELEASE(0,26,10)
+        ZMK_MOCK_PRESS(0,26,10)
+        ZMK_MOCK_RELEASE(0,26,300)
+        /* Reserved top row and new left thumb emit nothing. */
+        ZMK_MOCK_PRESS(0,0,10)
+        ZMK_MOCK_RELEASE(0,0,10)
+        ZMK_MOCK_PRESS(0,52,10)
+        ZMK_MOCK_RELEASE(0,52,10)
+    >;
+};

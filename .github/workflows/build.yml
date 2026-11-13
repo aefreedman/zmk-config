@@ -8,6 +8,30 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check layout and test production gesture engine
         run: python3 tests/run.py
+  native-sim:
+    needs: checks
+    runs-on: ubuntu-latest
+    container: docker.io/zmkfirmware/zmk-build-arm:4.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned ZMK workspace
+        run: |
+          mkdir -p "$RUNNER_TEMP/elora-native/config"
+          cp config/west.yml "$RUNNER_TEMP/elora-native/config/west.yml"
+          cd "$RUNNER_TEMP/elora-native"
+          west init -l config
+          west update --fetch-opt=--filter=tree:0
+          west zephyr-export
+      - name: Exercise production keymap and ZMK event pipeline
+        run: |
+          cd "$RUNNER_TEMP/elora-native/zmk/app"
+          ZMK_EXTRA_MODULES="$GITHUB_WORKSPACE" ZMK_BUILD_DIR="$RUNNER_TEMP/elora-native/build" ./run-test.sh "$GITHUB_WORKSPACE/tests/native-sim"
+      - name: Save simulator logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-sim-logs
+          path: ${{ runner.temp }}/elora-native/build/**/*.log
   build:
     needs: checks
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
