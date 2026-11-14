@@ -17,14 +17,20 @@
 #
 ---
 include:
+  - board: halcyon_dongle//zmk
+    shield: halcyon_elora_dongle
+    artifact-name: elora-dongle
   - board: halcyon_wireless//zmk
     shield: halcyon_elora_left
-    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=y -DCONFIG_ZMK_USB=y
-    artifact-name: elora-usb-left
+    cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n -DCONFIG_ZMK_USB=n
+    artifact-name: elora-usb-powered-left
   - board: halcyon_wireless//zmk
     shield: halcyon_elora_right
     cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n -DCONFIG_ZMK_USB=n
-    artifact-name: elora-usb-right
+    artifact-name: elora-usb-powered-right
   - board: halcyon_wireless//zmk
     shield: settings_reset
     artifact-name: halcyon-wireless-settings-reset
+  - board: halcyon_dongle//zmk
+    shield: settings_reset
+    artifact-name: halcyon-dongle-settings-reset
