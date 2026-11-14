@@ -19,7 +19,9 @@ def layout_checks():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
     assert len(generator.POSITIONS) == len(set(generator.POSITIONS)) == 41
-    assert generator.POSITIONS[38] == 57  # Original Space is right inner thumb.
+    assert generator.POSITIONS[36:] == [53, 54, 58, 59, 60]
+    assert generator.POSITIONS[37] == 54  # Left middle: Shift/Symbol.
+    assert generator.POSITIONS[39] == 59  # Right middle: NUM/Backspace.
     assert generator.POSITIONS[:36] == [*range(12, 42), *range(46, 52)]
     original = generator.source_layers()
     assert set(original) == set(generator.LAYERS)
