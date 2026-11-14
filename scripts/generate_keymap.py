@@ -8,7 +8,7 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 LAYERS = ["COLEMAK", "BASE", "FPS", "SYM", "NUM", "FUNC", "ADJUST", "DJMAX"]
 # Each original physical Reviung position has exactly one destination.
-POSITIONS = [*range(12, 36), *range(36, 42), *range(46, 52), 53, 54, 59, 60, 61]
+POSITIONS = [*range(12, 36), *range(36, 42), *range(46, 52), 53, 54, 58, 59, 60]
 SPECIAL = {
     "_______": "&trans", "XXXXXXX": "&none", "ADJUST": "&mo ADJUST",
     "COLEMAK": "&base_select COLEMAK", "QWERTY": "&base_select QWERTY",

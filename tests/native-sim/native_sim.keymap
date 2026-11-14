@@ -8,12 +8,12 @@
     events = <
         /* Shift + NUM, two arrow selections >3 seconds apart. */
         ZMK_MOCK_PRESS(0,54,20)
-        ZMK_MOCK_PRESS(0,60,300)
+        ZMK_MOCK_PRESS(0,59,300)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,3100)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,10)
-        ZMK_MOCK_RELEASE(0,60,10)
+        ZMK_MOCK_RELEASE(0,59,10)
         ZMK_MOCK_RELEASE(0,54,300)
         /* Fast ordinary-key rollover: Shift is one-shot, not a held mod. */
         ZMK_MOCK_PRESS(0,54,20)
