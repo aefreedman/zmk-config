@@ -1,0 +1,29 @@
+mouse_speed: 2000 0
+normal_speed: 2100
+mouse_speed: 0 0
+normal_speed: 2000
+normal_speed: 1900
+mouse_speed: 2000 0
+mouse_speed: 0 0
+normal_speed: 2000
+mouse_speed: 2000 0
+mouse_speed: 0 0
+speed_layer: 9 1 1
+normal_speed: 2100
+mouse_speed: 2000 0
+mouse_speed: 0 0
+speed_layer: 9 0 1
+mouse_speed: 2000 0
+mouse_speed: 0 0
+speed_layer: 10 1 1
+normal_speed: 2200
+mouse_speed: 2000 0
+mouse_speed: 0 0
+normal_speed: 2000
+mouse_speed: 2000 0
+mouse_speed: 0 0
+speed_layer: 10 0 1
+mouse_speed: 2000 0
+mouse_speed: 0 0
+kp_pressed: usage_page 0x07 keycode 0x2C implicit_mods 0x00 explicit_mods 0x00
+kp_released: usage_page 0x07 keycode 0x2C implicit_mods 0x00 explicit_mods 0x00

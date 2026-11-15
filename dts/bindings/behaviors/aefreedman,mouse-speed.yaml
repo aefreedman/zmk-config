@@ -1,0 +1,3 @@
+description: Adjust the RAM-only normal mouse speed (0 down, 1 up, 2 reset)
+compatible: "aefreedman,mouse-speed"
+include: one_param.yaml

@@ -44,6 +44,10 @@
         /* Toggle mouse on; arrow positions move, thumb positions click. */
         ZMK_MOCK_PRESS(0,57,10)
         ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,19,10)
+        ZMK_MOCK_RELEASE(0,19,10)
+        ZMK_MOCK_PRESS(0,21,10)
+        ZMK_MOCK_RELEASE(0,21,10)
         ZMK_MOCK_PRESS(0,20,100)
         ZMK_MOCK_RELEASE(0,20,10)
         ZMK_MOCK_PRESS(0,31,100)

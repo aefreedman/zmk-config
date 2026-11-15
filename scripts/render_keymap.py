@@ -156,8 +156,11 @@ def legend(binding):
     if binding == "&trans":
         return ["▽", "Transparent"], "transparent"
     if binding in {"&ms_fast", "&ms_precision"}:
-        return (["Fast 1800", "hold / 2-tap"] if binding == "&ms_fast"
+        return (["Fast 4000", "hold / 2-tap"] if binding == "&ms_fast"
                 else ["Precision 500", "hold / 2-tap"]), "dual-role"
+    if binding in {"&ms_down", "&ms_up"}:
+        return (["Normal −100", "2-tap reset"] if binding == "&ms_down"
+                else ["Normal +100", "2-tap reset"]), "dual-role"
     if parts[:1] == ["&rd"]:
         return {"0": (["Shift / Sym"], "dual-role"),
                 "1": (["Enter / Ctrl"], "dual-role"),
@@ -238,7 +241,9 @@ not a fixed underlying key). Blank keys are gray; transparent keys have dashed b
 Colors consistently describe action types across every layer, not particular physical positions.</p>
 <div aria-label="Key categories">{swatches}</div>
 <p>Cursor arrows send keypresses; Mouse arrows move the pointer. Slash legends on rd behaviors summarize Shift/Sym, Enter/Ctrl,
-and Ctrl/Alt; see the behavior definition for tap/hold/dance timing. Layer taps show tap action then hold layer.</p>
+and Ctrl/Alt; see the behavior definition for tap/hold/dance timing. Layer taps show tap action then hold layer.
+Speed labels show firmware defaults, not live runtime values. Normal −100/+100 adjust normal speed only;
+double-tap either to reset it to 2000. Fast and Precision stay fixed at 4000 and 500.</p>
 <nav aria-label="Layers">{links}</nav>{sections}
 </body></html>
 '''

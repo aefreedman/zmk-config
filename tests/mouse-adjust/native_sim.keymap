@@ -1,0 +1,72 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../../config/halcyon_elora.keymap"
+#include <dt-bindings/zmk/kscan_mock.h>
+
+&kscan {
+    rows = <1>;
+    columns = <72>;
+    events = <
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
+        /* Increment while movement stays held: 2000 -> 2100 immediately. */
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_PRESS(0,45,20)
+        ZMK_MOCK_RELEASE(0,45,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        /* Two separately resolved decrements: 2100 -> 2000 -> 1900. */
+        ZMK_MOCK_PRESS(0,44,20)
+        ZMK_MOCK_RELEASE(0,44,250)
+        ZMK_MOCK_PRESS(0,44,20)
+        ZMK_MOCK_RELEASE(0,44,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        /* Double-tap decrement resets to 2000, not an extra decrement. */
+        ZMK_MOCK_PRESS(0,44,20)
+        ZMK_MOCK_RELEASE(0,44,20)
+        ZMK_MOCK_PRESS(0,44,20)
+        ZMK_MOCK_RELEASE(0,44,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        /* Fast remains fixed at 4000 after normal changes to 2100. */
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,20)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,250)
+        ZMK_MOCK_PRESS(0,45,20)
+        ZMK_MOCK_RELEASE(0,45,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,20)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        /* Precision remains fixed at 500 after normal changes to 2200. */
+        ZMK_MOCK_PRESS(0,61,20)
+        ZMK_MOCK_RELEASE(0,61,20)
+        ZMK_MOCK_PRESS(0,61,20)
+        ZMK_MOCK_RELEASE(0,61,250)
+        ZMK_MOCK_PRESS(0,45,20)
+        ZMK_MOCK_RELEASE(0,45,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        /* Double-tap increment also resets normal; Precision stays active. */
+        ZMK_MOCK_PRESS(0,45,20)
+        ZMK_MOCK_RELEASE(0,45,20)
+        ZMK_MOCK_PRESS(0,45,20)
+        ZMK_MOCK_RELEASE(0,45,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        ZMK_MOCK_PRESS(0,61,20)
+        ZMK_MOCK_RELEASE(0,61,20)
+        ZMK_MOCK_PRESS(0,61,20)
+        ZMK_MOCK_RELEASE(0,61,250)
+        ZMK_MOCK_PRESS(0,33,400)
+        ZMK_MOCK_RELEASE(0,33,250)
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,58,10)
+        ZMK_MOCK_RELEASE(0,58,10)
+    >;
+};

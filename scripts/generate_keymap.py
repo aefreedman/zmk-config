@@ -51,7 +51,7 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
  * Original QMK keymap: Copyright 2020 gtips, modified by aefreedman.
  * Edit the generator/reference deliberately, then regenerate.
  */
-#define ZMK_POINTING_DEFAULT_MOVE_VAL 1000
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 2000
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
@@ -70,14 +70,15 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 #define MOUSE_PRECISION 10
 
 &mmv_input_listener {
+    input-processors = <&normal_speed>;
     // First matching override wins: precision takes priority if both are active.
     precision {
         layers = <MOUSE_PRECISION>;
-        input-processors = <&zip_xy_scaler 1 2>;
+        input-processors = <&zip_xy_scaler 1 4>;
     };
     fast {
         layers = <MOUSE_FAST>;
-        input-processors = <&zip_xy_scaler 9 5>;
+        input-processors = <&zip_xy_scaler 2 1>;
     };
 };
 
@@ -88,7 +89,28 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 };
 
 / {
+    normal_speed: normal_mouse_speed {
+        compatible = "aefreedman,mouse-speed-scaler";
+        #input-processor-cells = <0>;
+        track-remainders;
+    };
     behaviors {
+        ms_adjust: mouse_speed_adjust {
+            compatible = "aefreedman,mouse-speed";
+            #binding-cells = <1>;
+        };
+        ms_down: mouse_speed_down {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&ms_adjust 0>, <&ms_adjust 2>;
+        };
+        ms_up: mouse_speed_up {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&ms_adjust 1>, <&ms_adjust 2>;
+        };
         rd: reviung_dance {
             compatible = "aefreedman,reviung-dance";
             #binding-cells = <1>;
@@ -166,6 +188,10 @@ def mouse_bindings(original):
     bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
     bindings[POSITIONS[38]] = "&mkp LCLK"
     bindings[POSITIONS[39]] = "&mkp RCLK"
+    bindings[19] = "&kp PG_UP"
+    bindings[21] = "&kp PG_DN"
+    bindings[44] = "&ms_down"
+    bindings[45] = "&ms_up"
     bindings[60] = "&ms_fast"
     bindings[61] = "&ms_precision"
     return bindings
@@ -175,7 +201,7 @@ def speed_overlay_bindings():
     # Remain transparent so switching MOUSE off really returns to typing even
     # if a speed mode is latched. Both mode keys must fall through to MOUSE.
     bindings = ["&none"] * 72
-    for pos in [*POSITIONS, 52, 61]:
+    for pos in [*POSITIONS, 44, 45, 52, 61]:
         bindings[pos] = "&trans"
     bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
     return bindings
@@ -196,8 +222,8 @@ def build_layers():
             bindings[58] = "&none"
         bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
         layers.append((name, labels.get(name, name.title()), bindings))
-    layers.append(("MOUSE", "Mouse (1000)", mouse_bindings(original)))
-    layers.append(("MOUSE_FAST", "Fast speed (1800)", speed_overlay_bindings()))
+    layers.append(("MOUSE", "Mouse (2000 default)", mouse_bindings(original)))
+    layers.append(("MOUSE_FAST", "Fast speed (4000)", speed_overlay_bindings()))
     layers.append(("MOUSE_PRECISION", "Precision speed (500)", speed_overlay_bindings()))
     return layers
 

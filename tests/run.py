@@ -37,19 +37,21 @@ def layout_checks():
         assert bindings[:12] == ["&none"] * 12, name
         assert bindings[57] == "&tog MOUSE", name
         if name == "MOUSE":
-            expected = {20: "&mmv MOVE_UP", 31: "&mmv MOVE_LEFT",
+            expected = {19: "&kp PG_UP", 21: "&kp PG_DN",
+                        20: "&mmv MOVE_UP", 31: "&mmv MOVE_LEFT",
                         32: "&mmv MOVE_DOWN", 33: "&mmv MOVE_RIGHT",
                         58: "&mkp LCLK", 59: "&mkp RCLK", 60: "&ms_fast"}
             for index in generator.POSITIONS:
                 assert bindings[index] == expected.get(index, "&trans"), (name, index)
             assert bindings[61] == "&ms_precision"
+            assert bindings[44] == "&ms_down" and bindings[45] == "&ms_up"
             arrows = {"KC_UP": "MOVE_UP", "KC_LEFT": "MOVE_LEFT",
                       "KC_DOWN": "MOVE_DOWN", "KC_RGHT": "MOVE_RIGHT"}
             for index, token in zip(generator.POSITIONS, original["NUM"]):
                 if token in arrows:
                     assert bindings[index] == "&mmv " + arrows[token]
         elif name in {"MOUSE_FAST", "MOUSE_PRECISION"}:
-            for index in [*generator.POSITIONS, 52, 61]:
+            for index in [*generator.POSITIONS, 44, 45, 52, 61]:
                 assert bindings[index] == "&trans", (name, index)
         else:
             for index, token in zip(generator.POSITIONS, original[name]):
@@ -59,7 +61,7 @@ def layout_checks():
                 assert bindings[52] == "&kp KP_DOT" and bindings[58] == "&none"
         extras = {57}
         if name in {"MOUSE", "MOUSE_FAST", "MOUSE_PRECISION"}:
-            extras.add(61)
+            extras.update({44, 45, 61})
         if name in {"NUM", "MOUSE_FAST", "MOUSE_PRECISION"}:
             extras.add(52)
         for index in set(range(72)) - set(generator.POSITIONS) - extras:
@@ -69,13 +71,16 @@ def layout_checks():
     assert "CONFIG_ZMK_RGB_UNDERGLOW=n" in (ROOT / "config/halcyon_elora.conf").read_text()
     for config in ["config/halcyon_elora.conf", "tests/native-sim/native_sim.conf"]:
         assert "CONFIG_ZMK_POINTING=y" in (ROOT / config).read_text()
-    assert "#define ZMK_POINTING_DEFAULT_MOVE_VAL 1000" in generated
-    assert "input-processors = <&zip_xy_scaler 9 5>;" in generated
-    assert "input-processors = <&zip_xy_scaler 1 2>;" in generated
+    assert "#define ZMK_POINTING_DEFAULT_MOVE_VAL 2000" in generated
+    assert "input-processors = <&normal_speed>;" in generated
+    assert "input-processors = <&zip_xy_scaler 2 1>;" in generated
+    assert "input-processors = <&zip_xy_scaler 1 4>;" in generated
+    assert "bindings = <&ms_adjust 0>, <&ms_adjust 2>;" in generated
+    assert "bindings = <&ms_adjust 1>, <&ms_adjust 2>;" in generated
     assert generated.index("layers = <MOUSE_PRECISION>") < generated.index("layers = <MOUSE_FAST>")
     for mode in ["MOUSE_FAST", "MOUSE_PRECISION"]:
         assert f"bindings = <&mo {mode}>, <&tog {mode}>;" in generated
-    print("Layout: 11 layers, 1000/1800/500 speed modes, mouse controls, blank top/extras, RGB off passed")
+    print("Layout: 2000/4000/500 speeds, normal ±100/reset, PgUp/PgDn, blank top/extras, RGB off passed")
     return generator
 
 
@@ -93,7 +98,8 @@ def visual_checks(directory, generator):
         "&tog MOUSE": "layer", "&tog DJMAX": "layer", "&mo ADJUST": "layer",
         "&base_select COLEMAK": "layer", "&rd 0": "dual-role",
         "&lt NUM BSPC": "dual-role", "&ms_fast": "dual-role",
-        "&ms_precision": "dual-role", "&kp LEFT": "navigation",
+        "&ms_precision": "dual-role", "&ms_down": "dual-role", "&ms_up": "dual-role",
+        "&kp PG_UP": "navigation", "&kp PG_DN": "navigation", "&kp LEFT": "navigation",
         "&mmv MOVE_LEFT": "navigation", "&mkp LCLK": "navigation",
         "&kp C_VOL_UP": "media", "&kp F1": "system", "&bootloader": "system",
         "&none": "blank", "&trans": "transparent",
@@ -124,20 +130,21 @@ def speed_verifier_checks():
     verifier = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(verifier)
     log = """layer_changed: layer 8 state 1 locked 1
-Mouse movement set to 16/0
+Normal pointer scale: 32 at 2000
+Mouse movement set to 32/0
 layer_changed: layer 9 state 1 locked 0
-scaled 16 with 9/5 to 29 with remainder 0
-Mouse movement set to 29/0
+scaled 32 with 2/1 to 64 with remainder 0
+Mouse movement set to 64/0
 layer_changed: layer 10 state 1 locked 0
-scaled 16 with 1/2 to 8 with remainder 0
+scaled 32 with 1/4 to 8 with remainder 0
 Mouse movement set to 8/0
 layer_changed: layer 10 state 0 locked 0
 layer_changed: layer 9 state 0 locked 0
 layer_changed: layer 8 state 0 locked 1
 """
     verifier.verify(log)
-    for bad in [log.replace("with 1/2", "with 9/5"),
-                log.replace("Mouse movement set to 29/0", "Mouse movement set to 16/0"),
+    for bad in [log.replace("with 1/4", "with 2/1"),
+                log.replace("Mouse movement set to 64/0", "Mouse movement set to 32/0"),
                 log + "Mouse movement set to 1/0\n"]:
         try:
             verifier.verify(bad)
@@ -155,12 +162,15 @@ def main():
     if not compiler:
         raise SystemExit("Install Clang/GCC or set CC")
     with tempfile.TemporaryDirectory(prefix="elora-tests-", dir=ROOT) as directory:
-        binary = Path(directory) / "test_dance"
-        subprocess.run([compiler, "-std=c11", "-Wall", "-Wextra", "-Werror", "-pedantic",
-                        "-fsanitize=address,undefined", "-g", "-I", str(ROOT / "src"),
-                        str(ROOT / "src/reviung_dance.c"), str(ROOT / "tests/test_dance.c"),
-                        "-o", str(binary)], check=True)
-        subprocess.run([str(binary)], check=True)
+        cases = {"test_dance": ["src/reviung_dance.c", "tests/test_dance.c"],
+                 "test_mouse_speed": ["tests/test_mouse_speed.c"]}
+        for name, sources in cases.items():
+            binary = Path(directory) / name
+            subprocess.run([compiler, "-std=c11", "-Wall", "-Wextra", "-Werror", "-pedantic",
+                            "-fsanitize=address,undefined", "-g", "-I", str(ROOT / "src"),
+                            *(str(ROOT / source) for source in sources),
+                            "-o", str(binary)], check=True)
+            subprocess.run([str(binary)], check=True)
         visual_checks(directory, generator)
 
 if __name__ == "__main__":
