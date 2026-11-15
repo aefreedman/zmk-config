@@ -11,6 +11,11 @@
         ZMK_MOCK_PRESS(0,59,300)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,3100)
+        /* NUM decimal moved to52; old58 is now disabled on NUM. */
+        ZMK_MOCK_PRESS(0,52,10)
+        ZMK_MOCK_RELEASE(0,52,10)
+        ZMK_MOCK_PRESS(0,58,10)
+        ZMK_MOCK_RELEASE(0,58,10)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,10)
         ZMK_MOCK_RELEASE(0,59,10)

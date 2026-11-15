@@ -25,7 +25,11 @@ jobs:
       - name: Exercise production keymap and ZMK event pipeline
         run: |
           cd "$RUNNER_TEMP/elora-native/zmk/app"
-          ZMK_EXTRA_MODULES="$GITHUB_WORKSPACE" ZMK_BUILD_DIR="$RUNNER_TEMP/elora-native/build" ./run-test.sh "$GITHUB_WORKSPACE/tests/native-sim"
+          export ZMK_EXTRA_MODULES="$GITHUB_WORKSPACE"
+          export ZMK_BUILD_DIR="$RUNNER_TEMP/elora-native/build"
+          ./run-test.sh "$GITHUB_WORKSPACE/tests/native-sim"
+          ./run-test.sh "$GITHUB_WORKSPACE/tests/mouse-speed"
+          python3 "$GITHUB_WORKSPACE/tests/check_mouse_speed.py" "$ZMK_BUILD_DIR/tests/mouse-speed/keycode_events_full.log"
       - name: Save simulator logs
         if: always()
         uses: actions/upload-artifact@v4

@@ -108,7 +108,9 @@ static int on_position(const struct zmk_position_state_changed *ev) {
                 !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(lt))) ||
                 !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(mo))) ||
                 !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(tog))) ||
-                !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(base_select)));
+                !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(base_select))) ||
+                !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(ms_fast))) ||
+                !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(ms_precision)));
         }
     }
     for (unsigned i = 0; i < RD_COUNT; i++) {

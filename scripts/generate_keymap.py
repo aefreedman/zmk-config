@@ -51,9 +51,11 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
  * Original QMK keymap: Copyright 2020 gtips, modified by aefreedman.
  * Edit the generator/reference deliberately, then regenerate.
  */
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1000
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
+#include <input/processors.dtsi>
 
 #define COLEMAK 0
 #define QWERTY  1
@@ -64,6 +66,20 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 #define ADJUST  6
 #define DJMAX   7
 #define MOUSE   8
+#define MOUSE_FAST 9
+#define MOUSE_PRECISION 10
+
+&mmv_input_listener {
+    // First matching override wins: precision takes priority if both are active.
+    precision {
+        layers = <MOUSE_PRECISION>;
+        input-processors = <&zip_xy_scaler 1 2>;
+    };
+    fast {
+        layers = <MOUSE_FAST>;
+        input-processors = <&zip_xy_scaler 9 5>;
+    };
+};
 
 &lt {
     tapping-term-ms = <200>;
@@ -81,6 +97,18 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
         base_select: reviung_base {
             compatible = "aefreedman,reviung-base";
             #binding-cells = <1>;
+        };
+        ms_fast: mouse_fast_mode {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&mo MOUSE_FAST>, <&tog MOUSE_FAST>;
+        };
+        ms_precision: mouse_precision_mode {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&mo MOUSE_PRECISION>, <&tog MOUSE_PRECISION>;
         };
     };
     keymap {
@@ -138,6 +166,18 @@ def mouse_bindings(original):
     bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
     bindings[POSITIONS[38]] = "&mkp LCLK"
     bindings[POSITIONS[39]] = "&mkp RCLK"
+    bindings[60] = "&ms_fast"
+    bindings[61] = "&ms_precision"
+    return bindings
+
+
+def speed_overlay_bindings():
+    # Remain transparent so switching MOUSE off really returns to typing even
+    # if a speed mode is latched. Both mode keys must fall through to MOUSE.
+    bindings = ["&none"] * 72
+    for pos in [*POSITIONS, 52, 61]:
+        bindings[pos] = "&trans"
+    bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
     return bindings
 
 
@@ -151,9 +191,14 @@ def build_layers():
         bindings = ["&none"] * 72
         for pos, token in zip(POSITIONS, keys):
             bindings[pos] = binding(token)
+        if name == "NUM":
+            bindings[52] = bindings[58]  # Keypad decimal on the left outer thumb.
+            bindings[58] = "&none"
         bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
         layers.append((name, labels.get(name, name.title()), bindings))
-    layers.append(("MOUSE", "Mouse", mouse_bindings(original)))
+    layers.append(("MOUSE", "Mouse (1000)", mouse_bindings(original)))
+    layers.append(("MOUSE_FAST", "Fast speed (1800)", speed_overlay_bindings()))
+    layers.append(("MOUSE_PRECISION", "Precision speed (500)", speed_overlay_bindings()))
     return layers
 
 

@@ -83,8 +83,8 @@ def load_layers(repo):
     if not hasattr(module, "build_layers"):
         raise ValueError(f"{path} must expose build_layers()")
     layers = module.build_layers()
-    if len(layers) != 9:
-        raise ValueError(f"Expected nine layers, got {len(layers)}")
+    if not layers:
+        raise ValueError("Expected at least one layer")
     names = set()
     for name, label, bindings in layers:
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) or name.lower() in names:
@@ -155,6 +155,9 @@ def legend(binding):
         return ["—"], "blank"
     if binding == "&trans":
         return ["▽", "Transparent"], "transparent"
+    if binding in {"&ms_fast", "&ms_precision"}:
+        return (["Fast 1800", "hold / 2-tap"] if binding == "&ms_fast"
+                else ["Precision 500", "hold / 2-tap"]), "dual-role"
     if parts[:1] == ["&rd"]:
         return {"0": (["Shift / Sym"], "dual-role"),
                 "1": (["Enter / Ctrl"], "dual-role"),
