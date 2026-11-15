@@ -148,9 +148,36 @@ layer_changed: layer 8 state 0 locked 1
     print("Effective-speed verifier: accepts expected trace; rejects wrong priority/speed/stuck output")
 
 
+def native_verifier_checks():
+    spec = importlib.util.spec_from_file_location("native_verifier", ROOT / "tests/check_native_gestures.py")
+    verifier = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(verifier)
+    prefix = "<dbg> zmk: "
+    log = "\n".join([
+        "[00:00:00.000,000] " + prefix + "54 tap dance pressed",
+        "[00:00:00.200,000] " + prefix + "hid_listener_keycode_pressed: usage_page 0x07 keycode 0xE1",
+        "[00:00:00.600,000] " + prefix + "54 tap dance pressed",
+        "[00:00:01.000,000] " + prefix + "hid_listener_keycode_pressed: usage_page 0x07 keycode 0xE1",
+        *[f"[00:00:03.00{i},000] " + prefix + f"hid_listener_keycode_{state}: usage_page 0x07 keycode {code}"
+          for i, (state, code) in enumerate([
+              ("pressed", "0xE1"), ("pressed", "0xE0"), ("released", "0xE1"),
+              ("pressed", "0x04"), ("released", "0xE0"), ("released", "0x04")])],
+    ])
+    assert verifier.verify(log) == 400
+    for bad in ["", log.replace("01.000,000", "00.800,000"), log.replace("0xE0", "0xE1")]:
+        try:
+            verifier.verify(bad)
+        except AssertionError:
+            pass
+        else:
+            raise AssertionError("Native gesture verifier accepted incorrect timing/modifier expiry")
+    print("Native trace verifier: checks latency and independent sticky expiration")
+
+
 def main():
     generator = layout_checks()
     speed_verifier_checks()
+    native_verifier_checks()
     compiler = os.environ.get("CC") or shutil.which("clang") or shutil.which("gcc")
     if not compiler:
         raise SystemExit("Install Clang/GCC or set CC")
