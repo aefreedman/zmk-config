@@ -55,7 +55,6 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/pointing.h>
-#include <input/processors.dtsi>
 
 #define COLEMAK 0
 #define QWERTY  1
@@ -66,20 +65,9 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 #define ADJUST  6
 #define DJMAX   7
 #define MOUSE   8
-#define MOUSE_FAST 9
-#define MOUSE_PRECISION 10
 
 &mmv_input_listener {
-    input-processors = <&normal_speed>;
-    // First matching override wins: precision takes priority if both are active.
-    precision {
-        layers = <MOUSE_PRECISION>;
-        input-processors = <&zip_xy_scaler 1 4>;
-    };
-    fast {
-        layers = <MOUSE_FAST>;
-        input-processors = <&zip_xy_scaler 2 1>;
-    };
+    input-processors = <&pointer_speed>;
 };
 
 &lt {
@@ -89,7 +77,7 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 };
 
 / {
-    normal_speed: normal_mouse_speed {
+    pointer_speed: runtime_mouse_speed {
         compatible = "aefreedman,mouse-speed-scaler";
         #input-processor-cells = <0>;
         track-remainders;
@@ -124,13 +112,13 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
             tapping-term-ms = <200>;
-            bindings = <&mo MOUSE_FAST>, <&tog MOUSE_FAST>;
+            bindings = <&ms_adjust 3>, <&ms_adjust 4>;
         };
         ms_precision: mouse_precision_mode {
             compatible = "zmk,behavior-tap-dance";
             #binding-cells = <0>;
             tapping-term-ms = <200>;
-            bindings = <&mo MOUSE_PRECISION>, <&tog MOUSE_PRECISION>;
+            bindings = <&ms_adjust 5>, <&ms_adjust 6>;
         };
     };
     keymap {
@@ -178,8 +166,6 @@ def render_layer(name, label, bindings):
 
 def mouse_bindings(original):
     bindings = ["&none"] * 72
-    for pos in POSITIONS:
-        bindings[pos] = "&trans"
     movements = {"KC_UP": "MOVE_UP", "KC_DOWN": "MOVE_DOWN",
                  "KC_LEFT": "MOVE_LEFT", "KC_RGHT": "MOVE_RIGHT"}
     for pos, token in zip(POSITIONS, original["NUM"]):
@@ -194,16 +180,6 @@ def mouse_bindings(original):
     bindings[45] = "&ms_up"
     bindings[60] = "&ms_fast"
     bindings[61] = "&ms_precision"
-    return bindings
-
-
-def speed_overlay_bindings():
-    # Remain transparent so switching MOUSE off really returns to typing even
-    # if a speed mode is latched. Both mode keys must fall through to MOUSE.
-    bindings = ["&none"] * 72
-    for pos in [*POSITIONS, 44, 45, 52, 61]:
-        bindings[pos] = "&trans"
-    bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
     return bindings
 
 
@@ -223,8 +199,6 @@ def build_layers():
         bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
         layers.append((name, labels.get(name, name.title()), bindings))
     layers.append(("MOUSE", "Mouse (2000 default)", mouse_bindings(original)))
-    layers.append(("MOUSE_FAST", "Fast speed (4000)", speed_overlay_bindings()))
-    layers.append(("MOUSE_PRECISION", "Precision speed (500)", speed_overlay_bindings()))
     return layers
 
 

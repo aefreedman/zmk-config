@@ -44,6 +44,11 @@
         /* Toggle mouse on; arrow positions move, thumb positions click. */
         ZMK_MOCK_PRESS(0,57,10)
         ZMK_MOCK_RELEASE(0,57,10)
+        /* Unassigned letters/modifiers must NOT fall through to typing. */
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,10)
+        ZMK_MOCK_PRESS(0,53,10)
+        ZMK_MOCK_RELEASE(0,53,10)
         ZMK_MOCK_PRESS(0,19,10)
         ZMK_MOCK_RELEASE(0,19,10)
         ZMK_MOCK_PRESS(0,21,10)

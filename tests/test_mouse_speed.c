@@ -29,5 +29,27 @@ int main(void) {
         for (int i = 0; i < 20; i++) total += ms_scale(sign, MS_MIN, &remainder);
         assert(total == sign && remainder == 0);
     }
-    puts("Mouse speed math: steps/reset, bounds, wide products, signed fractional movement passed");
+    assert(MS_FAST_HOLD == 3 && MS_FAST_TOGGLE == 4 && MS_PREC_HOLD == 5 && MS_PREC_TOGGLE == 6);
+    uint32_t flags = ms_mode_press(0, MS_FAST_HOLD);
+    assert(ms_effective_speed(2100, flags) == 4000);
+    flags = ms_mode_release(flags, MS_FAST_HOLD);
+    assert(flags == 0 && ms_effective_speed(2100, flags) == 2100);
+    flags = ms_mode_press(flags, MS_FAST_TOGGLE);
+    flags = ms_mode_press(flags, MS_FAST_HOLD);
+    flags = ms_mode_release(flags, MS_FAST_HOLD);
+    assert(flags == MS_FAST_LATCHED);
+    flags = ms_mode_press(flags, MS_PREC_HOLD);
+    assert(ms_effective_speed(2200, flags) == 500);
+    flags = ms_mode_release(flags, MS_PREC_HOLD);
+    assert(ms_effective_speed(2200, flags) == 4000);
+    flags = ms_mode_press(flags, MS_FAST_TOGGLE);
+    assert(flags == 0 && ms_effective_speed(2200, flags) == 2200);
+    flags = ms_mode_press(flags, MS_PREC_TOGGLE);
+    flags = ms_mode_press(flags, MS_FAST_HOLD);
+    assert(ms_effective_speed(2000, flags) == 500);
+    flags = ms_mode_press(flags, MS_PREC_TOGGLE);
+    assert(ms_effective_speed(2000, flags) == 4000);
+    flags = ms_mode_release(flags, MS_FAST_HOLD);
+    assert(flags == 0);
+    puts("Mouse speed math: steps/reset, bounds, fractional movement, held/latched modes and priority passed");
 }

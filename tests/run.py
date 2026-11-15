@@ -30,8 +30,8 @@ def layout_checks():
     generated = generator.generate()
     assert (ROOT / "config/halcyon_elora.keymap").read_text() == generated
     layers = re.findall(r'bindings = <\n(.*?)\n            >;', generated, re.S)
-    assert len(layers) == 11
-    for name, layer in zip([*generator.LAYERS, "MOUSE", "MOUSE_FAST", "MOUSE_PRECISION"], layers):
+    assert len(layers) == 9
+    for name, layer in zip([*generator.LAYERS, "MOUSE"], layers):
         bindings = [x.strip() for x in re.findall(r'&\w+(?:\s+(?!&)\w+)*', layer)]
         assert len(bindings) == 72, (name, len(bindings))
         assert bindings[:12] == ["&none"] * 12, name
@@ -40,19 +40,16 @@ def layout_checks():
             expected = {19: "&kp PG_UP", 21: "&kp PG_DN",
                         20: "&mmv MOVE_UP", 31: "&mmv MOVE_LEFT",
                         32: "&mmv MOVE_DOWN", 33: "&mmv MOVE_RIGHT",
-                        58: "&mkp LCLK", 59: "&mkp RCLK", 60: "&ms_fast"}
-            for index in generator.POSITIONS:
-                assert bindings[index] == expected.get(index, "&trans"), (name, index)
-            assert bindings[61] == "&ms_precision"
-            assert bindings[44] == "&ms_down" and bindings[45] == "&ms_up"
+                        44: "&ms_down", 45: "&ms_up", 57: "&tog MOUSE",
+                        58: "&mkp LCLK", 59: "&mkp RCLK", 60: "&ms_fast",
+                        61: "&ms_precision"}
+            assert bindings == [expected.get(index, "&none") for index in range(72)]
+            assert "&trans" not in bindings
             arrows = {"KC_UP": "MOVE_UP", "KC_LEFT": "MOVE_LEFT",
                       "KC_DOWN": "MOVE_DOWN", "KC_RGHT": "MOVE_RIGHT"}
             for index, token in zip(generator.POSITIONS, original["NUM"]):
                 if token in arrows:
                     assert bindings[index] == "&mmv " + arrows[token]
-        elif name in {"MOUSE_FAST", "MOUSE_PRECISION"}:
-            for index in [*generator.POSITIONS, 44, 45, 52, 61]:
-                assert bindings[index] == "&trans", (name, index)
         else:
             for index, token in zip(generator.POSITIONS, original[name]):
                 expected = "&none" if name == "NUM" and index == 58 else generator.binding(token)
@@ -60,9 +57,9 @@ def layout_checks():
             if name == "NUM":
                 assert bindings[52] == "&kp KP_DOT" and bindings[58] == "&none"
         extras = {57}
-        if name in {"MOUSE", "MOUSE_FAST", "MOUSE_PRECISION"}:
+        if name == "MOUSE":
             extras.update({44, 45, 61})
-        if name in {"NUM", "MOUSE_FAST", "MOUSE_PRECISION"}:
+        if name == "NUM":
             extras.add(52)
         for index in set(range(72)) - set(generator.POSITIONS) - extras:
             assert bindings[index] == "&none", (name, index)
@@ -72,14 +69,13 @@ def layout_checks():
     for config in ["config/halcyon_elora.conf", "tests/native-sim/native_sim.conf"]:
         assert "CONFIG_ZMK_POINTING=y" in (ROOT / config).read_text()
     assert "#define ZMK_POINTING_DEFAULT_MOVE_VAL 2000" in generated
-    assert "input-processors = <&normal_speed>;" in generated
-    assert "input-processors = <&zip_xy_scaler 2 1>;" in generated
-    assert "input-processors = <&zip_xy_scaler 1 4>;" in generated
+    assert "input-processors = <&pointer_speed>;" in generated
+    assert "MOUSE_FAST" not in generated and "MOUSE_PRECISION" not in generated
+    assert "zip_xy_scaler" not in generated
     assert "bindings = <&ms_adjust 0>, <&ms_adjust 2>;" in generated
     assert "bindings = <&ms_adjust 1>, <&ms_adjust 2>;" in generated
-    assert generated.index("layers = <MOUSE_PRECISION>") < generated.index("layers = <MOUSE_FAST>")
-    for mode in ["MOUSE_FAST", "MOUSE_PRECISION"]:
-        assert f"bindings = <&mo {mode}>, <&tog {mode}>;" in generated
+    assert "bindings = <&ms_adjust 3>, <&ms_adjust 4>;" in generated
+    assert "bindings = <&ms_adjust 5>, <&ms_adjust 6>;" in generated
     print("Layout: 2000/4000/500 speeds, normal ±100/reset, PgUp/PgDn, blank top/extras, RGB off passed")
     return generator
 
@@ -130,20 +126,20 @@ def speed_verifier_checks():
     verifier = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(verifier)
     log = """layer_changed: layer 8 state 1 locked 1
-Normal pointer scale: 32 at 2000
+Pointer speed scale: 32 at 2000 mode 0
 Mouse movement set to 32/0
-layer_changed: layer 9 state 1 locked 0
-scaled 32 with 2/1 to 64 with remainder 0
+Mouse mode state: 1
+Pointer speed scale: 64 at 4000 mode 1
 Mouse movement set to 64/0
-layer_changed: layer 10 state 1 locked 0
-scaled 32 with 1/4 to 8 with remainder 0
+Mouse mode state: 5
+Pointer speed scale: 8 at 500 mode 5
 Mouse movement set to 8/0
-layer_changed: layer 10 state 0 locked 0
-layer_changed: layer 9 state 0 locked 0
+Mouse mode state: 1
+Mouse mode state: 0
 layer_changed: layer 8 state 0 locked 1
 """
     verifier.verify(log)
-    for bad in [log.replace("with 1/4", "with 2/1"),
+    for bad in [log.replace("at 500 mode 5", "at 4000 mode 5"),
                 log.replace("Mouse movement set to 64/0", "Mouse movement set to 32/0"),
                 log + "Mouse movement set to 1/0\n"]:
         try:
