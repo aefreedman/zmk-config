@@ -69,17 +69,35 @@ def visual_checks(directory, generator):
     assert {p.name for p in output.iterdir()} == {
         "index.html", *(name.lower() + ".svg" for name, _, _ in layers)}
     namespace = {"s": "http://www.w3.org/2000/svg"}
+    categories = {
+        "&kp A": "normal", "&kp SPACE": "normal",
+        "&kp LGUI": "modifier", "&kp LSHFT": "modifier",
+        "&tog MOUSE": "layer", "&tog DJMAX": "layer", "&mo ADJUST": "layer",
+        "&base_select COLEMAK": "layer", "&rd 0": "dual-role",
+        "&lt NUM BSPC": "dual-role", "&kp LEFT": "navigation",
+        "&mmv MOVE_LEFT": "navigation", "&mkp LCLK": "navigation",
+        "&kp C_VOL_UP": "media", "&kp F1": "system", "&bootloader": "system",
+        "&none": "blank", "&trans": "transparent",
+    }
+    seen_categories = set()
     for name, _, bindings in layers:
         svg = ET.parse(output / (name.lower() + ".svg")).getroot()
         keys = svg.findall("s:g", namespace)
         assert [int(key.attrib["data-position"]) for key in keys] == list(range(62))
         for pos, key in enumerate(keys):
+            assert "highlight" not in key.attrib["class"]
+            if bindings[pos] in categories:
+                assert key.attrib["class"] == "key " + categories[bindings[pos]], (name, pos)
+                seen_categories.add(bindings[pos])
             assert key.findtext("s:title", namespaces=namespace) == f"Position {pos}: {bindings[pos]}"
             if bindings[pos] == "&kp COLN":
                 assert key.findtext("s:text[@class='legend']", namespaces=namespace) == ":"
+    assert seen_categories == set(categories)
     index = (output / "index.html").read_text()
     assert index.count("<svg ") == 9 and "<script" not in index
-    print("Visuals: nine offline SVGs, 62 correctly labeled positions each, HTML overview passed")
+    assert 'aria-label="Key categories"' in index
+    assert "Mouse toggle 57" not in index and ".highlight" not in index
+    print("Visuals: nine SVGs, 62 correct labels each, consistent action categories across layers passed")
 
 
 def main():

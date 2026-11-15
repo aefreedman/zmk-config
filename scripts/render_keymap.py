@@ -123,6 +123,32 @@ def key_label(code):
     return code[1:] if re.fullmatch(r"N[0-9]", code) else KEY_LABELS.get(code, code)
 
 
+CATEGORIES = {
+    "normal": ("Typing / symbols", "#ffffff"),
+    "modifier": ("Modifiers", "#eee5fa"),
+    "layer": ("Layer controls", "#fff0cc"),
+    "dual-role": ("Tap / hold / dance", "#e3edff"),
+    "navigation": ("Navigation / editing / pointer", "#def2e9"),
+    "media": ("Media controls", "#fbe3eb"),
+    "system": ("Function / system", "#e4eaf2"),
+}
+MODIFIERS = {"LCTRL", "RCTRL", "LSHFT", "RSHFT", "LALT", "RALT", "LGUI", "RGUI", "CAPS"}
+NAVIGATION = {"UP", "DOWN", "LEFT", "RIGHT", "PG_UP", "PG_DN", "HOME", "END",
+              "INS", "BSPC", "DEL", "RET", "ESC", "TAB"}
+
+
+def key_category(code):
+    if code in MODIFIERS:
+        return "modifier"
+    if code in NAVIGATION:
+        return "navigation"
+    if code.startswith("C_"):
+        return "media"
+    if re.fullmatch(r"F[0-9]+", code):
+        return "system"
+    return "normal"
+
+
 def legend(binding):
     parts = binding.split()
     if binding == "&none":
@@ -130,24 +156,24 @@ def legend(binding):
     if binding == "&trans":
         return ["▽", "Transparent"], "transparent"
     if parts[:1] == ["&rd"]:
-        return {"0": (["Shift / Sym"], "special"),
-                "1": (["Enter / Ctrl"], "special"),
-                "2": (["Ctrl / Alt"], "special")}.get(parts[-1], ([binding], "special"))
+        return {"0": (["Shift / Sym"], "dual-role"),
+                "1": (["Enter / Ctrl"], "dual-role"),
+                "2": (["Ctrl / Alt"], "dual-role")}.get(parts[-1], ([binding], "dual-role"))
     if len(parts) == 2 and parts[0] == "&kp":
         label = key_label(parts[1])
         return (["Cursor", label] if parts[1] in {"UP", "DOWN", "LEFT", "RIGHT"}
-                else [label]), "normal"
+                else [label]), key_category(parts[1])
     if len(parts) == 3 and parts[0] == "&lt":
-        return [key_label(parts[2]), f"hold {parts[1]}"], "special"
+        return [key_label(parts[2]), f"hold {parts[1]}"], "dual-role"
     if len(parts) == 2 and parts[0] in {"&tog", "&mo", "&base_select"}:
         action = {"&tog": "Toggle", "&mo": "Hold", "&base_select": "Base"}[parts[0]]
-        return [action, parts[1]], "special"
+        return [action, parts[1]], "layer"
     if len(parts) == 2 and parts[0] == "&mmv":
         return ["Mouse", {"MOVE_UP": "↑", "MOVE_DOWN": "↓", "MOVE_LEFT": "←",
-                          "MOVE_RIGHT": "→"}.get(parts[1], parts[1])], "special"
+                          "MOVE_RIGHT": "→"}.get(parts[1], parts[1])], "navigation"
     if len(parts) == 2 and parts[0] == "&mkp":
-        return [{"LCLK": "Left click", "RCLK": "Right click"}.get(parts[1], parts[1])], "special"
-    return [{"&bootloader": "Bootloader", "&sys_reset": "Reset"}.get(binding, binding)], "special"
+        return [{"LCLK": "Left click", "RCLK": "Right click"}.get(parts[1], parts[1])], "navigation"
+    return [{"&bootloader": "Bootloader", "&sys_reset": "Reset"}.get(binding, binding)], "system"
 
 
 SVG_STYLE = """
@@ -157,9 +183,8 @@ SVG_STYLE = """
 .blank rect {fill:#f1f3f5}.blank .legend {fill:#657180}
 .transparent rect {fill:#fafbfc;stroke-dasharray:5 4}
 .transparent .legend {fill:#526172}
-.special rect {fill:#eef5fb}
-.highlight rect {fill:#fff0cc;stroke:#925b00;stroke-width:3}
-"""
+""" + "\n".join(f".{category} rect {{fill:{color}}}"
+                  for category, (_, color) in CATEGORIES.items())
 
 
 def render_svg(name, label, bindings, geometry):
@@ -171,10 +196,7 @@ def render_svg(name, label, bindings, geometry):
            f'<title>{escape(name)} — {escape(label)}</title>', f'<style>{SVG_STYLE}</style>']
     for pos, (key, binding) in enumerate(zip(geometry, bindings)):
         lines, kind = legend(binding)
-        relevant = ((pos == 57 and binding == "&tog MOUSE") or
-                    (pos in {58, 59} and binding.startswith("&mkp ")) or
-                    (pos in {20, 31, 32, 33} and binding.startswith("&mmv ")))
-        classes = f"key {kind}" + (" highlight" if relevant else "")
+        classes = f"key {kind}"
         svg.append(f'<g class="{classes}" data-position="{pos}" transform="rotate({key.rotation / 100:g} {key.origin_x} {key.origin_y})">')
         svg.append(f'<title>Position {pos}: {escape(binding)}</title>')
         svg.append(f'<rect x="{key.x + 4}" y="{key.y + 4}" width="{key.width - 8}" height="{key.height - 8}" rx="7"/>')
@@ -189,6 +211,9 @@ def render_svg(name, label, bindings, geometry):
 
 
 def render_index(rendered):
+    swatches = " ".join(
+        f'<span class="category"><span class="swatch" style="background:{color}"></span>{escape(label)}</span>'
+        for label, color in CATEGORIES.values())
     links = " · ".join(f'<a href="#{name.lower()}">{escape(label)}</a>' for name, label, _ in rendered)
     sections = "\n".join(f'<section id="{name.lower()}"><h2>{escape(label)} <small>({escape(name)})</small></h2>'
                          f'<p><a href="{name.lower()}.svg">Standalone SVG</a></p>{svg}</section>'
@@ -198,15 +223,18 @@ def render_index(rendered):
 <title>Halcyon Elora keymap</title><style>
 body {{font:16px/1.5 system-ui,sans-serif;color:#172333;background:white;margin:0 auto;padding:1.5rem;max-width:1500px}}
 a {{color:#225b8b}} nav {{line-height:2}} section {{margin:2rem 0;border-top:1px solid #ccd2da}}
+.category {{display:inline-flex;align-items:center;gap:.4rem;margin:.2rem 1rem .2rem 0}}
+.swatch {{display:inline-block;width:1rem;height:1rem;border:1px solid #748091;border-radius:3px}}
 svg {{display:block;width:100%;height:auto}} small {{font-weight:normal}} h2 {{margin-bottom:0}} section p {{margin-top:0}}
 @media print {{body {{padding:0;max-width:none}} nav,section p {{display:none}} section {{break-inside:avoid;page-break-inside:avoid}}}}
 </style></head><body><h1>Halcyon Elora keymap</h1>
 <p>62 physical keys in their staggered layout. Small numbers are zero-based physical positions.
 Module positions 62–71 are absent from this keyboard and are not drawn. Hover a key for its full binding.</p>
 <p><strong>Legend:</strong> — = blank / no action; ▽ = transparent (falls through to the next active layer,
-not a fixed underlying key). Dashed keys are transparent. Blue keys are behaviors; amber keys highlight
-Mouse toggle 57, clicks 58/59, and movement 20/31/32/33 when assigned. Cursor arrows send keypresses;
-Mouse arrows move the pointer. Slash legends on rd behaviors summarize Shift/Sym, Enter/Ctrl,
+not a fixed underlying key). Blank keys are gray; transparent keys have dashed borders.
+Colors consistently describe action types across every layer, not particular physical positions.</p>
+<div aria-label="Key categories">{swatches}</div>
+<p>Cursor arrows send keypresses; Mouse arrows move the pointer. Slash legends on rd behaviors summarize Shift/Sym, Enter/Ctrl,
 and Ctrl/Alt; see the behavior definition for tap/hold/dance timing. Layer taps show tap action then hold layer.</p>
 <nav aria-label="Layers">{links}</nav>{sections}
 </body></html>
