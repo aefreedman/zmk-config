@@ -1,1 +1,3 @@
 s/.*hid_listener_keycode/kp/p
+s/.*behavior_input_two_axis_adjust_speed: After: /mouse_speed: /p
+s/.*zmk_hid_mouse_button_/mouse_button_/p

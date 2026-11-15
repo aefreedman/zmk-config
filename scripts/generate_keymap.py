@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LAYERS = ["COLEMAK", "BASE", "FPS", "SYM", "NUM", "FUNC", "ADJUST", "DJMAX"]
 # Each original physical Reviung position has exactly one destination.
 POSITIONS = [*range(12, 36), *range(36, 42), *range(46, 52), 53, 54, 58, 59, 60]
+MOUSE_TOGGLE_POSITION = 57  # Right half, bottom-row innermost thumb.
 SPECIAL = {
     "_______": "&trans", "XXXXXXX": "&none", "ADJUST": "&mo ADJUST",
     "COLEMAK": "&base_select COLEMAK", "QWERTY": "&base_select QWERTY",
@@ -52,6 +53,7 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/pointing.h>
 
 #define COLEMAK 0
 #define QWERTY  1
@@ -61,6 +63,7 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
 #define FUNC    5
 #define ADJUST  6
 #define DJMAX   7
+#define MOUSE   8
 
 &lt {
     tapping-term-ms = <200>;
@@ -84,9 +87,63 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
         compatible = "zmk,keymap";
 """
 
-def generate():
+# Position groups and horizontal offsets in two eight-column halves.
+ROWS = [(range(0, 6), range(6, 12), 0, 2),
+        (range(12, 18), range(18, 24), 0, 2),
+        (range(24, 30), range(30, 36), 0, 2),
+        (range(36, 44), range(44, 52), 0, 0),
+        (range(52, 57), range(57, 62), 3, 0),
+        (range(62, 67), range(67, 72), 0, 3)]
+
+
+def column_widths(layers):
+    widths = [[0] * 8 for _ in range(2)]
+    for _, _, bindings in layers:
+        for left, right, lo, ro in ROWS:
+            for side, positions, offset in [(0, left, lo), (1, right, ro)]:
+                for col, pos in enumerate(positions, offset):
+                    widths[side][col] = max(widths[side][col], len(bindings[pos]))
+    return widths
+
+
+def render_layer(name, label, bindings):
+    widths = column_widths([(name, label, bindings)])
+    left_width = sum(widths[0]) + 7
+    text = f'\n        {name.lower()}_layer {{\n            display-name = "{label}";\n'
+    text += "            // " + "LEFT".ljust(left_width) + "      RIGHT\n"
+    text += "            bindings = <\n"
+    for left, right, lo, ro in ROWS:
+        halves = []
+        for side, positions, offset in [(0, left, lo), (1, right, ro)]:
+            cells = [""] * 8
+            for col, pos in enumerate(positions, offset):
+                cells[col] = bindings[pos]
+            halves.append(" ".join(cell.ljust(width) for cell, width in zip(cells, widths[side])))
+        text += "                " + (halves[0] + "      " + halves[1]).rstrip() + "\n"
+    text += "            >;\n"
+    # Sensor order: left module, right module, left soldered, right soldered.
+    text += "            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;\n        };\n"
+    return text
+
+
+def mouse_bindings(original):
+    bindings = ["&none"] * 72
+    for pos in POSITIONS:
+        bindings[pos] = "&trans"
+    movements = {"KC_UP": "MOVE_UP", "KC_DOWN": "MOVE_DOWN",
+                 "KC_LEFT": "MOVE_LEFT", "KC_RGHT": "MOVE_RIGHT"}
+    for pos, token in zip(POSITIONS, original["NUM"]):
+        if token in movements:
+            bindings[pos] = "&mmv " + movements[token]
+    bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
+    bindings[POSITIONS[38]] = "&mkp LCLK"
+    bindings[POSITIONS[39]] = "&mkp RCLK"
+    return bindings
+
+
+def build_layers():
     original = source_layers()
-    text = HEADER
+    layers = []
     labels = {"BASE": "QWERTY", "NUM": "Numbers + navigation", "FUNC": "Function + media"}
     for name in LAYERS:
         keys = original[name]
@@ -94,14 +151,16 @@ def generate():
         bindings = ["&none"] * 72
         for pos, token in zip(POSITIONS, keys):
             bindings[pos] = binding(token)
-        text += f'\n        {name.lower()}_layer {{\n            display-name = "{labels.get(name, name.title())}";\n            bindings = <\n'
-        for start, end in [(0, 12), (12, 24), (24, 36), (36, 52), (52, 62), (62, 72)]:
-            text += "                " + "  ".join(f"{b:<20}" for b in bindings[start:end]).rstrip() + "\n"
-        text += "            >;\n"
-        # Sensor order: left module, right module, left soldered, right soldered.
-        # Encoder press and all other module button positions remain unassigned.
-        text += "            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp C_VOL_UP C_VOL_DN>;\n        };\n"
-    return text + "    };\n};\n"
+        bindings[MOUSE_TOGGLE_POSITION] = "&tog MOUSE"
+        layers.append((name, labels.get(name, name.title()), bindings))
+    layers.append(("MOUSE", "Mouse", mouse_bindings(original)))
+    return layers
+
+
+def generate():
+    layers = build_layers()
+    return HEADER + "".join(render_layer(name, label, bindings)
+                             for name, label, bindings in layers) + "    };\n};\n"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

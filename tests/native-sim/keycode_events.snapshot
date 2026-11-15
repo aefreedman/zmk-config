@@ -18,3 +18,25 @@ kp_pressed: usage_page 0x07 keycode 0x1F implicit_mods 0x02 explicit_mods 0x00
 kp_released: usage_page 0x07 keycode 0x1F implicit_mods 0x02 explicit_mods 0x00
 kp_pressed: usage_page 0x07 keycode 0x15 implicit_mods 0x00 explicit_mods 0x00
 kp_released: usage_page 0x07 keycode 0x15 implicit_mods 0x00 explicit_mods 0x00
+mouse_speed: 0 -600
+mouse_speed: 0 0
+mouse_speed: -600 0
+mouse_speed: 0 0
+mouse_speed: 0 600
+mouse_speed: 0 0
+mouse_speed: 600 0
+mouse_speed: 0 0
+mouse_button_press: Button 0 count 1
+mouse_button_press: Mouse buttons set to 0x01
+mouse_button_release: Button 0 count: 0
+mouse_button_release: Button 0 released
+mouse_button_release: Mouse buttons set to 0x00
+mouse_button_press: Button 1 count 1
+mouse_button_press: Mouse buttons set to 0x02
+mouse_button_release: Button 1 count: 0
+mouse_button_release: Button 1 released
+mouse_button_release: Mouse buttons set to 0x00
+kp_pressed: usage_page 0x07 keycode 0x2C implicit_mods 0x00 explicit_mods 0x00
+kp_released: usage_page 0x07 keycode 0x2C implicit_mods 0x00 explicit_mods 0x00
+kp_pressed: usage_page 0x07 keycode 0x18 implicit_mods 0x00 explicit_mods 0x00
+kp_released: usage_page 0x07 keycode 0x18 implicit_mods 0x00 explicit_mods 0x00
