@@ -161,7 +161,7 @@ def legend(binding):
     if binding in {"&ms_down", "&ms_up"}:
         return (["Normal −100", "2-tap reset"] if binding == "&ms_down"
                 else ["Normal +100", "2-tap reset"]), "dual-role"
-    if parts[:1] == ["&rd"]:
+    if parts[:1] == ["&tg"]:
         return {"0": (["Shift / Sym"], "dual-role"),
                 "1": (["Enter / Ctrl"], "dual-role"),
                 "2": (["Ctrl / Alt"], "dual-role")}.get(parts[-1], ([binding], "dual-role"))
@@ -240,7 +240,7 @@ Module positions 62–71 are absent from this keyboard and are not drawn. Hover 
 not a fixed underlying key). Blank keys are gray; transparent keys have dashed borders.
 Colors consistently describe action types across every layer, not particular physical positions.</p>
 <div aria-label="Key categories">{swatches}</div>
-<p>Cursor arrows send keypresses; Mouse arrows move the pointer. Slash legends on rd behaviors summarize Shift/Sym, Enter/Ctrl,
+<p>Cursor arrows send keypresses; Mouse arrows move the pointer. Slash legends on thumb gestures summarize Shift/Sym, Enter/Ctrl,
 and Ctrl/Alt; see the behavior definition for tap/hold/dance timing. Layer taps show tap action then hold layer.
 Speed labels show firmware defaults, not live runtime values. Normal −100/+100 adjust normal speed only;
 double-tap either to reset it to 2000. Fast and Precision stay fixed at 4000 and 500.</p>

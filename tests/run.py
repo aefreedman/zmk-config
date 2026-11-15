@@ -4,6 +4,8 @@
 Does not emulate Zephyr, Bluetooth, split event routing, or physical hardware.
 """
 # SPDX-License-Identifier: GPL-2.0-or-later
+import hashlib
+import json
 import importlib.util
 import os
 from pathlib import Path
@@ -20,20 +22,30 @@ def layout_checks():
     spec = importlib.util.spec_from_file_location("generator", ROOT / "scripts/generate_keymap.py")
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
-    assert len(generator.POSITIONS) == len(set(generator.POSITIONS)) == 41
-    assert generator.POSITIONS[36:] == [53, 54, 58, 59, 60]
-    assert generator.POSITIONS[37] == 54  # Left middle: Shift/Symbol.
-    assert generator.POSITIONS[39] == 59  # Right middle: NUM/Backspace.
-    assert generator.POSITIONS[:36] == [*range(12, 42), *range(46, 52)]
-    original = generator.source_layers()
-    assert set(original) == set(generator.LAYERS)
+    custom = generator.build_layers()
+    # Frozen pre-cleanup physical bindings, with only &rd renamed to &tg.
+    matrix = [bindings for _, _, bindings in custom]
+    fingerprint = hashlib.sha256(json.dumps(matrix, separators=(",", ":")).encode()).hexdigest()
+    assert fingerprint == "97d1adf10cb24bd32ce6d73f84cdb10808295833f9161947bd8abf2ff051859f"
+    assert not (ROOT / "reference").exists()
+    native = generator.build_layers("native")
+    for (_, _, original), (_, _, alternate) in zip(custom, native):
+        assert alternate == [generator.NATIVE_BINDINGS.get(binding, binding) for binding in original]
+    for backend, filename in generator.KEYMAPS.items():
+        assert (ROOT / "config" / filename).read_text() == generator.generate(backend)
+    native_text = generator.generate("native")
+    assert "aefreedman,thumb-gestures" not in native_text and "&tg " not in native_text
+    assert '#include "native_thumb_gestures.dtsi"' in native_text
+    native_definitions = (ROOT / "config/native_thumb_gestures.dtsi").read_text()
+    assert all(compatible.startswith("zmk,behavior-") for compatible in
+               re.findall(r'compatible = "([^"]+)"', native_definitions))
     generated = generator.generate()
-    assert (ROOT / "config/halcyon_elora.keymap").read_text() == generated
     layers = re.findall(r'bindings = <\n(.*?)\n            >;', generated, re.S)
     assert len(layers) == 9
-    for name, layer in zip([*generator.LAYERS, "MOUSE"], layers):
+    for (name, _, expected_bindings), layer in zip(custom, layers):
         bindings = [x.strip() for x in re.findall(r'&\w+(?:\s+(?!&)\w+)*', layer)]
         assert len(bindings) == 72, (name, len(bindings))
+        assert bindings == expected_bindings, name
         assert bindings[:12] == ["&none"] * 12, name
         assert bindings[57] == "&tog MOUSE", name
         if name == "MOUSE":
@@ -45,24 +57,9 @@ def layout_checks():
                         61: "&ms_precision"}
             assert bindings == [expected.get(index, "&none") for index in range(72)]
             assert "&trans" not in bindings
-            arrows = {"KC_UP": "MOVE_UP", "KC_LEFT": "MOVE_LEFT",
-                      "KC_DOWN": "MOVE_DOWN", "KC_RGHT": "MOVE_RIGHT"}
-            for index, token in zip(generator.POSITIONS, original["NUM"]):
-                if token in arrows:
-                    assert bindings[index] == "&mmv " + arrows[token]
-        else:
-            for index, token in zip(generator.POSITIONS, original[name]):
-                expected = "&none" if name == "NUM" and index == 58 else generator.binding(token)
-                assert bindings[index] == expected, (name, index, token)
-            if name == "NUM":
-                assert bindings[52] == "&kp KP_DOT" and bindings[58] == "&none"
-        extras = {57}
-        if name == "MOUSE":
-            extras.update({44, 45, 61})
         if name == "NUM":
-            extras.add(52)
-        for index in set(range(72)) - set(generator.POSITIONS) - extras:
-            assert bindings[index] == "&none", (name, index)
+            assert bindings[52] == "&kp KP_DOT" and bindings[58] == "&none"
+        assert bindings[62:] == ["&none"] * 10, name
         assert not any("SPACE" in bindings[i] for i in range(52, 57)), name
     assert "&rgb_ug" not in generated
     assert "CONFIG_ZMK_RGB_UNDERGLOW=n" in (ROOT / "config/halcyon_elora.conf").read_text()
@@ -92,7 +89,7 @@ def visual_checks(directory, generator):
         "&kp A": "normal", "&kp SPACE": "normal",
         "&kp LGUI": "modifier", "&kp LSHFT": "modifier",
         "&tog MOUSE": "layer", "&tog DJMAX": "layer", "&mo ADJUST": "layer",
-        "&base_select COLEMAK": "layer", "&rd 0": "dual-role",
+        "&base_select COLEMAK": "layer", "&tg 0": "dual-role",
         "&lt NUM BSPC": "dual-role", "&ms_fast": "dual-role",
         "&ms_precision": "dual-role", "&ms_down": "dual-role", "&ms_up": "dual-role",
         "&kp PG_UP": "navigation", "&kp PG_DN": "navigation", "&kp LEFT": "navigation",
@@ -158,7 +155,7 @@ def main():
     if not compiler:
         raise SystemExit("Install Clang/GCC or set CC")
     with tempfile.TemporaryDirectory(prefix="elora-tests-", dir=ROOT) as directory:
-        cases = {"test_dance": ["src/reviung_dance.c", "tests/test_dance.c"],
+        cases = {"test_thumb_gestures": ["src/thumb_gestures.c", "tests/test_thumb_gestures.c"],
                  "test_mouse_speed": ["tests/test_mouse_speed.c"]}
         for name, sources in cases.items():
             binary = Path(directory) / name

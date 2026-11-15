@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#define DT_DRV_COMPAT aefreedman_reviung_base
+#define DT_DRV_COMPAT aefreedman_base_select
 #include <zephyr/device.h>
 #include <drivers/behavior.h>
 #include <zmk/behavior.h>

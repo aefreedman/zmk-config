@@ -20,6 +20,10 @@ include:
   - board: halcyon_dongle//zmk
     shield: halcyon_elora_dongle
     artifact-name: elora-dongle
+  - board: halcyon_dongle//zmk
+    shield: halcyon_elora_dongle
+    cmake-args: -DKEYMAP_FILE=${GITHUB_WORKSPACE}/config/halcyon_elora_native.keymap
+    artifact-name: elora-dongle-native-gestures
   - board: halcyon_wireless//zmk
     shield: halcyon_elora_left
     cmake-args: -DCONFIG_ZMK_SPLIT_ROLE_CENTRAL=n -DCONFIG_ZMK_USB=n

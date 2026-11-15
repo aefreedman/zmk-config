@@ -1,0 +1,74 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later
+ * Included inside / { behaviors { ... }; }; after SYM is defined.
+ */
+native_sticky_mod: native_sticky_mod {
+    compatible = "zmk,behavior-sticky-key";
+    #binding-cells = <1>;
+    bindings = <&kp>;
+    release-after-ms = <3000>;
+    ignore-modifiers;
+    quick-release;
+};
+
+native_sticky_sym: native_sticky_sym {
+    compatible = "zmk,behavior-sticky-key";
+    #binding-cells = <1>;
+    bindings = <&mo>;
+    release-after-ms = <3000>;
+    ignore-modifiers;
+    quick-release;
+};
+
+/* Tap-preferred chooses sticky Shift on a short nested hold-tap release.
+ * It does not reproduce custom first-interrupter handling or the 130 ms rule.
+ * This 200 ms timer starts when tap-dance decides, not at physical key-down.
+ */
+native_shift_ht: native_shift_ht {
+    compatible = "zmk,behavior-hold-tap";
+    #binding-cells = <2>;
+    tapping-term-ms = <200>;
+    flavor = "tap-preferred";
+    bindings = <&kp>, <&native_sticky_mod>;
+};
+
+native_sym_ht: native_sym_ht {
+    compatible = "zmk,behavior-hold-tap";
+    #binding-cells = <2>;
+    tapping-term-ms = <200>;
+    flavor = "hold-preferred";
+    bindings = <&mo>, <&native_sticky_sym>;
+};
+
+native_shift_sym: native_shift_sym {
+    compatible = "zmk,behavior-tap-dance";
+    #binding-cells = <0>;
+    tapping-term-ms = <200>;
+    bindings = <&native_shift_ht LSHFT LSHFT>,
+               <&native_sym_ht SYM SYM>, <&none>;
+};
+
+/* Direct stock hold-tap: bind as &native_enter_ctrl LCTRL RET. */
+native_enter_ctrl: native_enter_ctrl {
+    compatible = "zmk,behavior-hold-tap";
+    #binding-cells = <2>;
+    tapping-term-ms = <200>;
+    flavor = "hold-preferred";
+    bindings = <&kp>, <&kp>;
+};
+
+native_ctrl_alt_ht: native_ctrl_alt_ht {
+    compatible = "zmk,behavior-hold-tap";
+    #binding-cells = <2>;
+    tapping-term-ms = <200>;
+    flavor = "hold-preferred";
+    bindings = <&kp>, <&native_sticky_mod>;
+};
+
+native_ctrl_alt: native_ctrl_alt {
+    compatible = "zmk,behavior-tap-dance";
+    #binding-cells = <0>;
+    tapping-term-ms = <200>;
+    bindings = <&native_ctrl_alt_ht LCTRL LCTRL>,
+               <&native_ctrl_alt_ht LALT LC(LALT)>,
+               <&native_ctrl_alt_ht LC(LALT) LC(LALT)>, <&none>;
+};

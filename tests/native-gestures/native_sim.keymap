@@ -1,0 +1,136 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../../config/halcyon_elora_native.keymap"
+#include <dt-bindings/zmk/kscan_mock.h>
+
+&kscan {
+    rows = <1>;
+    columns = <72>;
+    events = <
+        /* Single tap Shift -> one-shot; quick-release after the next key-down. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Resolved single hold waits through both 200 ms decisions. */
+        ZMK_MOCK_PRESS(0,54,450)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_RELEASE(0,54,300)
+        /* Enter tap, then Ctrl hold (direct stock hold-tap, no outer dance). */
+        ZMK_MOCK_PRESS(0,51,20)
+        ZMK_MOCK_RELEASE(0,51,250)
+        ZMK_MOCK_PRESS(0,51,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_RELEASE(0,51,300)
+        /* Unlike custom gestures, two quick Enter taps produce two Enters. */
+        ZMK_MOCK_PRESS(0,51,20)
+        ZMK_MOCK_RELEASE(0,51,20)
+        ZMK_MOCK_PRESS(0,51,20)
+        ZMK_MOCK_RELEASE(0,51,300)
+        /* CtrlAlt single tap and resolved single hold. */
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_PRESS(0,36,450)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_RELEASE(0,36,300)
+        /* Double Shift -> sticky SYM: EXCL once, then ordinary Q at position 13. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,20)
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,13,20)
+        ZMK_MOCK_RELEASE(0,13,20)
+        ZMK_MOCK_PRESS(0,13,20)
+        ZMK_MOCK_RELEASE(0,13,300)
+        /* Double hold Shift -> momentary SYM, then ordinary A after release. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,20)
+        ZMK_MOCK_PRESS(0,54,450)
+        ZMK_MOCK_PRESS(0,13,20)
+        ZMK_MOCK_RELEASE(0,13,20)
+        ZMK_MOCK_RELEASE(0,54,300)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Double and triple CtrlAlt taps both queue encoded Ctrl+Alt. */
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Double hold is Alt; triple hold is encoded Ctrl+Alt. */
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,450)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_RELEASE(0,36,300)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,450)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_RELEASE(0,36,300)
+        /* Stack independent sticky Shift and Ctrl; modifiers do not consume each other. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Unconsumed sticky Shift expires after its 3-second native timer. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,3300)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Trailing none absorbs count 3 Shift and count 4 CtrlAlt, not arbitrary later taps. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,20)
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,20)
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,20)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Fast rollover: initial A interrupts TD after HT listener already ran. */
+        /* It escapes unshifted; releasing Shift queues a one-shot for the SECOND A. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,10)
+        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+        /* Independent sticky timers: Shift expires, later Ctrl remains active.
+         * The custom shared timer would refresh BOTH after adding Ctrl. */
+        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_RELEASE(0,54,1750)
+        ZMK_MOCK_PRESS(0,36,20)
+        ZMK_MOCK_RELEASE(0,36,1750)
+        ZMK_MOCK_PRESS(0,25,10)
+        ZMK_MOCK_RELEASE(0,25,300)
+    >;
+};

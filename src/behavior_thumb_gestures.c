@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
-#define DT_DRV_COMPAT aefreedman_reviung_dance
+#define DT_DRV_COMPAT aefreedman_thumb_gestures
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
 #include <drivers/behavior.h>
@@ -10,19 +10,19 @@
 #include <zmk/keymap.h>
 #include <dt-bindings/zmk/keys.h>
 #include <string.h>
-#include "reviung_dance.h"
+#include "thumb_gestures.h"
 
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
 
-static struct rd_engine engine;
+static struct tg_engine engine;
 static struct k_work_delayable timer;
-static uint32_t positions[RD_COUNT];
+static uint32_t positions[TG_COUNT];
 static bool emitting;
-extern const struct zmk_listener zmk_listener_reviung_dance;
+extern const struct zmk_listener zmk_listener_thumb_gestures;
 #define SYM_LAYER DT_INST_PROP(0, symbol_layer)
 
 static void schedule(void) {
-    int64_t deadline = rd_next_deadline(&engine);
+    int64_t deadline = tg_next_deadline(&engine);
     if (deadline) {
         int64_t delay = deadline - k_uptime_get();
         k_work_reschedule(&timer, K_MSEC(MAX(1, delay)));
@@ -57,21 +57,21 @@ static void emit_enter(int64_t now) {
 
 static void timer_handler(struct k_work *work) {
     (void)work;
-    rd_tick(&engine, k_uptime_get());
+    tg_tick(&engine, k_uptime_get());
     schedule();
 }
 
 static int pressed(struct zmk_behavior_binding *binding, struct zmk_behavior_binding_event event) {
-    if (binding->param1 >= RD_COUNT) return -EINVAL;
+    if (binding->param1 >= TG_COUNT) return -EINVAL;
     positions[binding->param1] = event.position;
-    rd_press(&engine, binding->param1, event.timestamp);
+    tg_press(&engine, binding->param1, event.timestamp);
     schedule();
     return ZMK_BEHAVIOR_OPAQUE;
 }
 
 static int released(struct zmk_behavior_binding *binding, struct zmk_behavior_binding_event event) {
-    if (binding->param1 >= RD_COUNT) return -EINVAL;
-    rd_release(&engine, binding->param1, event.timestamp);
+    if (binding->param1 >= TG_COUNT) return -EINVAL;
+    tg_release(&engine, binding->param1, event.timestamp);
     schedule();
     return ZMK_BEHAVIOR_OPAQUE;
 }
@@ -97,7 +97,7 @@ static int on_position(const struct zmk_position_state_changed *ev) {
     int own_kind = -1;
     bool modifier_or_layer = false;
     if (b) {
-        if (!strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_INST(0, aefreedman_reviung_dance)))) {
+        if (!strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_INST(0, aefreedman_thumb_gestures)))) {
             own_kind = b->param1;
             modifier_or_layer = true;
         } else if (!strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(kp)))) {
@@ -115,13 +115,13 @@ static int on_position(const struct zmk_position_state_changed *ev) {
                 !strcmp(b->behavior_dev, DEVICE_DT_NAME(DT_NODELABEL(ms_up)));
         }
     }
-    for (unsigned i = 0; i < RD_COUNT; i++) {
+    for (unsigned i = 0; i < TG_COUNT; i++) {
         if (engine.dances[i].active && positions[i] == ev->position) {
             own_kind = i;
             break;
         }
     }
-    rd_interrupt(&engine, own_kind, modifier_or_layer, ev->timestamp);
+    tg_interrupt(&engine, own_kind, modifier_or_layer, ev->timestamp);
     schedule();
     return ZMK_EV_EVENT_BUBBLE;
 }
@@ -137,22 +137,22 @@ static int listener(const zmk_event_t *eh) {
      * our pending one-shots. Held modifiers remain active for subsequent keys.
      */
     int64_t now = key->timestamp;
-    rd_tick(&engine, now);
+    tg_tick(&engine, now);
     if (!engine.pending && !engine.pending_symbols) return ZMK_EV_EVENT_BUBBLE;
     struct zmk_keycode_state_changed_event copy = copy_raised_zmk_keycode_state_changed(key);
-    ZMK_EVENT_RAISE_AFTER(copy, reviung_dance);
-    rd_consume(&engine, now);
+    ZMK_EVENT_RAISE_AFTER(copy, thumb_gestures);
+    tg_consume(&engine, now);
     schedule();
     return ZMK_EV_EVENT_HANDLED;
 }
 
-ZMK_LISTENER(reviung_dance, listener);
-ZMK_SUBSCRIPTION(reviung_dance, zmk_position_state_changed);
-ZMK_SUBSCRIPTION(reviung_dance, zmk_keycode_state_changed);
+ZMK_LISTENER(thumb_gestures, listener);
+ZMK_SUBSCRIPTION(thumb_gestures, zmk_position_state_changed);
+ZMK_SUBSCRIPTION(thumb_gestures, zmk_keycode_state_changed);
 
 static int init(const struct device *dev) {
     (void)dev;
-    rd_init(&engine, emit_mods, emit_symbols, emit_enter);
+    tg_init(&engine, emit_mods, emit_symbols, emit_enter);
     k_work_init_delayable(&timer, timer_handler);
     return 0;
 }
