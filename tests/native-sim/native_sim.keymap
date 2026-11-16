@@ -72,6 +72,9 @@
         ZMK_MOCK_RELEASE(0,58,10)
         ZMK_MOCK_PRESS(0,20,10)
         ZMK_MOCK_RELEASE(0,20,10)
+        /* Plain Enter above Space is independent of the Enter/Ctrl dance. */
+        ZMK_MOCK_PRESS(0,45,10)
+        ZMK_MOCK_RELEASE(0,45,10)
         /* Reserved top row and new left thumb emit nothing. */
         ZMK_MOCK_PRESS(0,0,10)
         ZMK_MOCK_RELEASE(0,0,10)

@@ -23,11 +23,14 @@ def layout_checks():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
     custom = generator.build_layers()
-    # Frozen pre-cleanup bindings; undo only the intentional 44/57 swap.
+    # Frozen pre-cleanup bindings; undo only the toggle swap and added Enter.
     matrix = [bindings.copy() for _, _, bindings in custom]
-    for bindings in matrix:
+    for (name, _, _), bindings in zip(custom, matrix):
         assert bindings[44] == "&tog MOUSE"
         bindings[44], bindings[57] = bindings[57], bindings[44]
+        if name != "MOUSE":
+            assert bindings[45] == "&kp RET", name
+            bindings[45] = "&none"
     fingerprint = hashlib.sha256(json.dumps(matrix, separators=(",", ":")).encode()).hexdigest()
     assert fingerprint == "97d1adf10cb24bd32ce6d73f84cdb10808295833f9161947bd8abf2ff051859f"
     assert not (ROOT / "reference").exists()
