@@ -6,8 +6,8 @@
     rows = <1>;
     columns = <72>;
     events = <
-        ZMK_MOCK_PRESS(0,57,10)
-        ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,44,10)
+        ZMK_MOCK_RELEASE(0,44,10)
         /* Normal plateau: 2000 units/sec, 32 units per 16ms tick. */
         ZMK_MOCK_PRESS(0,33,400)
         ZMK_MOCK_RELEASE(0,33,250)
@@ -62,8 +62,8 @@
         ZMK_MOCK_PRESS(0,60,220)
         ZMK_MOCK_RELEASE(0,60,250)
         /* Mouse-off still types, despite Fast remaining latched in RAM. */
-        ZMK_MOCK_PRESS(0,57,10)
-        ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,44,10)
+        ZMK_MOCK_RELEASE(0,44,10)
         ZMK_MOCK_PRESS(0,58,10)
         ZMK_MOCK_RELEASE(0,58,10)
         /* NUM decimal works normally, with no speed overlay to mask it. */
@@ -73,8 +73,8 @@
         ZMK_MOCK_PRESS(0,58,10)
         ZMK_MOCK_RELEASE(0,58,10)
         ZMK_MOCK_RELEASE(0,59,250)
-        ZMK_MOCK_PRESS(0,57,10)
-        ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,44,10)
+        ZMK_MOCK_RELEASE(0,44,10)
         ZMK_MOCK_PRESS(0,33,400)
         ZMK_MOCK_RELEASE(0,33,10)
         ZMK_MOCK_PRESS(0,60,20)
@@ -83,8 +83,8 @@
         ZMK_MOCK_RELEASE(0,60,250)
         /* Release routing must still clear a held mode after Mouse-off. */
         ZMK_MOCK_PRESS(0,61,220)
-        ZMK_MOCK_PRESS(0,57,10)
-        ZMK_MOCK_RELEASE(0,57,10)
+        ZMK_MOCK_PRESS(0,44,10)
+        ZMK_MOCK_RELEASE(0,44,10)
         ZMK_MOCK_RELEASE(0,61,250)
         ZMK_MOCK_PRESS(0,58,10)
         ZMK_MOCK_RELEASE(0,58,10)

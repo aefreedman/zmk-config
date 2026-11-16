@@ -23,8 +23,11 @@ def layout_checks():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
     custom = generator.build_layers()
-    # Frozen pre-cleanup physical bindings, with only &rd renamed to &tg.
-    matrix = [bindings for _, _, bindings in custom]
+    # Frozen pre-cleanup bindings; undo only the intentional 44/57 swap.
+    matrix = [bindings.copy() for _, _, bindings in custom]
+    for bindings in matrix:
+        assert bindings[44] == "&tog MOUSE"
+        bindings[44], bindings[57] = bindings[57], bindings[44]
     fingerprint = hashlib.sha256(json.dumps(matrix, separators=(",", ":")).encode()).hexdigest()
     assert fingerprint == "97d1adf10cb24bd32ce6d73f84cdb10808295833f9161947bd8abf2ff051859f"
     assert not (ROOT / "reference").exists()
@@ -47,12 +50,13 @@ def layout_checks():
         assert len(bindings) == 72, (name, len(bindings))
         assert bindings == expected_bindings, name
         assert bindings[:12] == ["&none"] * 12, name
-        assert bindings[57] == "&tog MOUSE", name
+        assert bindings[44] == "&tog MOUSE", name
+        assert bindings.count("&tog MOUSE") == 1, name
         if name == "MOUSE":
             expected = {19: "&kp PG_UP", 21: "&kp PG_DN",
                         20: "&mmv MOVE_UP", 31: "&mmv MOVE_LEFT",
                         32: "&mmv MOVE_DOWN", 33: "&mmv MOVE_RIGHT",
-                        44: "&ms_down", 45: "&ms_up", 57: "&tog MOUSE",
+                        44: "&tog MOUSE", 45: "&ms_up", 57: "&ms_down",
                         58: "&mkp LCLK", 59: "&mkp RCLK", 60: "&ms_fast",
                         61: "&ms_precision"}
             assert bindings == [expected.get(index, "&none") for index in range(72)]
@@ -114,7 +118,7 @@ def visual_checks(directory, generator):
     index = (output / "index.html").read_text()
     assert index.count("<svg ") == len(layers) and "<script" not in index
     assert 'aria-label="Key categories"' in index
-    assert "Mouse toggle 57" not in index and ".highlight" not in index
+    assert "Mouse toggle 44" not in index and ".highlight" not in index
     print(f"Visuals: {len(layers)} SVGs, 62 correct labels each, consistent action categories passed")
 
 
