@@ -1,0 +1,42 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../../config/halcyon_elora.keymap"
+#include <dt-bindings/zmk/kscan_mock.h>
+
+&kscan {
+    rows = <1>;
+    columns = <72>;
+    events = <
+        /* Clean NUM hold stays a layer after more than three seconds. */
+        ZMK_MOCK_PRESS(0,59,3200)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,59,300)
+        /* Tap Backspace, then immediately hold: must still become NUM. */
+        ZMK_MOCK_PRESS(0,59,30)
+        ZMK_MOCK_RELEASE(0,59,30)
+        ZMK_MOCK_PRESS(0,59,3200)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,59,300)
+        /* Delete still taps normally. */
+        ZMK_MOCK_PRESS(0,60,30)
+        ZMK_MOCK_RELEASE(0,60,300)
+        /* Tap Delete, then immediately hold: must still become FUNC. */
+        ZMK_MOCK_PRESS(0,60,30)
+        ZMK_MOCK_RELEASE(0,60,30)
+        ZMK_MOCK_PRESS(0,60,3200)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,60,300)
+        /* Clean FUNC hold stays a layer too. */
+        ZMK_MOCK_PRESS(0,60,3200)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,60,300)
+        /* Two deliberate Backspace taps remain two taps. */
+        ZMK_MOCK_PRESS(0,59,30)
+        ZMK_MOCK_RELEASE(0,59,30)
+        ZMK_MOCK_PRESS(0,59,30)
+        ZMK_MOCK_RELEASE(0,59,300)
+    >;
+};

@@ -1,0 +1,7 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../layer-tap/native_sim.keymap"
+
+/* Reproduce the old forced-repeat shortcut with the identical scan sequence. */
+&lt {
+    quick-tap-ms = <200>;
+};

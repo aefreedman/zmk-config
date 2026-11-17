@@ -39,6 +39,11 @@ def layout_checks():
         assert alternate == [generator.NATIVE_BINDINGS.get(binding, binding) for binding in original]
     for backend, filename in generator.KEYMAPS.items():
         assert (ROOT / "config" / filename).read_text() == generator.generate(backend)
+    for backend in generator.KEYMAPS:
+        layer_tap = re.search(r'&lt\s*\{(.*?)\};', generator.generate(backend), re.S).group(1)
+        assert 'quick-tap-ms = <0>;' in layer_tap
+        assert 'tapping-term-ms = <200>;' in layer_tap
+        assert 'flavor = "tap-preferred";' in layer_tap
     native_text = generator.generate("native")
     assert "aefreedman,thumb-gestures" not in native_text and "&tg " not in native_text
     assert '#include "native_thumb_gestures.dtsi"' in native_text
