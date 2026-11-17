@@ -46,7 +46,7 @@ HEADER = """/* SPDX-License-Identifier: GPL-2.0-or-later
     tapping-term-ms = <200>;
     // A tap must not force the next hold into repeating Backspace/Delete.
     quick-tap-ms = <0>;
-    flavor = "tap-preferred";
+    flavor = "hold-preferred";
 };
 
 / {

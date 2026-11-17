@@ -4,4 +4,5 @@
 /* Reproduce the old forced-repeat shortcut with the identical scan sequence. */
 &lt {
     quick-tap-ms = <200>;
+    flavor = "tap-preferred";
 };

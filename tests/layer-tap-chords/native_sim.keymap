@@ -1,0 +1,60 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+#include "../../config/halcyon_elora.keymap"
+#include <dt-bindings/zmk/kscan_mock.h>
+
+&kscan {
+    rows = <1>;
+    columns = <72>;
+    events = <
+        /* Nested NUM chord: all keys released within 200ms -> 7, not Backspace/W. */
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,59,300)
+        /* Rolling NUM chord: release NUM before the digit. */
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,59,10)
+        ZMK_MOCK_RELEASE(0,14,300)
+        /* Rapid 789 sequence, still entirely within the tapping term. */
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_PRESS(0,15,10)
+        ZMK_MOCK_RELEASE(0,15,10)
+        ZMK_MOCK_PRESS(0,16,10)
+        ZMK_MOCK_RELEASE(0,16,10)
+        ZMK_MOCK_RELEASE(0,59,300)
+        /* Nested and rolling FUNC chords -> F3, not Delete/W. */
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,60,300)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,60,10)
+        ZMK_MOCK_RELEASE(0,14,300)
+        /* Tap then rapid chord still chooses the layer on its second press. */
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,30)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,59,300)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,30)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_PRESS(0,14,10)
+        ZMK_MOCK_RELEASE(0,14,10)
+        ZMK_MOCK_RELEASE(0,60,300)
+        /* Plain double taps still send two Backspaces or two Deletes. */
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,30)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,300)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,30)
+        ZMK_MOCK_PRESS(0,60,20)
+        ZMK_MOCK_RELEASE(0,60,300)
+    >;
+};

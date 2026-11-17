@@ -29,6 +29,7 @@ jobs:
           export ZMK_BUILD_DIR="$RUNNER_TEMP/elora-native/build"
           ./run-test.sh "$GITHUB_WORKSPACE/tests/native-sim"
           ./run-test.sh "$GITHUB_WORKSPACE/tests/layer-tap"
+          ./run-test.sh "$GITHUB_WORKSPACE/tests/layer-tap-chords"
           ./run-test.sh "$GITHUB_WORKSPACE/tests/layer-tap-quick-repeat"
           ./run-test.sh "$GITHUB_WORKSPACE/tests/mouse-speed"
           python3 "$GITHUB_WORKSPACE/tests/check_mouse_speed.py" "$ZMK_BUILD_DIR/tests/mouse-speed/keycode_events_full.log"
