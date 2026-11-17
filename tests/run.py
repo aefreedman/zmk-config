@@ -23,10 +23,15 @@ def layout_checks():
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
     custom = generator.build_layers()
-    # Frozen pre-cleanup bindings; undo only the toggle swap and added Enter.
+    # Frozen pre-cleanup bindings; undo the explicit thumb moves, toggle swap and Enter.
     matrix = [bindings.copy() for _, _, bindings in custom]
     for (name, _, _), bindings in zip(custom, matrix):
         assert bindings[44] == "&tog MOUSE"
+        bindings[54], bindings[55] = bindings[55], bindings[54]
+        if name == "MOUSE":
+            bindings[57:60] = [bindings[59], bindings[57], bindings[58]]
+        else:
+            bindings[57:62] = bindings[61:62] + bindings[57:61]
         bindings[44], bindings[57] = bindings[57], bindings[44]
         if name != "MOUSE":
             assert bindings[45] == "&kp RET", name
@@ -64,13 +69,22 @@ def layout_checks():
             expected = {19: "&kp PG_UP", 21: "&kp PG_DN",
                         20: "&mmv MOVE_UP", 31: "&mmv MOVE_LEFT",
                         32: "&mmv MOVE_DOWN", 33: "&mmv MOVE_RIGHT",
-                        44: "&tog MOUSE", 45: "&ms_up", 57: "&ms_down",
-                        58: "&mkp LCLK", 59: "&mkp RCLK", 60: "&ms_fast",
+                        44: "&tog MOUSE", 45: "&ms_up", 59: "&ms_down",
+                        57: "&mkp LCLK", 58: "&mkp RCLK", 60: "&ms_fast",
                         61: "&ms_precision"}
             assert bindings == [expected.get(index, "&none") for index in range(72)]
             assert "&trans" not in bindings
+        if name in {"COLEMAK", "BASE"}:
+            assert bindings[52:62] == [
+                "&none", "&kp LGUI", "&none", "&tg 0", "&none",
+                "&kp SPACE", "&lt NUM BSPC", "&lt FUNC DEL", "&none", "&none"]
         if name == "NUM":
-            assert bindings[52] == "&kp KP_DOT" and bindings[58] == "&none"
+            assert bindings[52] == "&kp KP_DOT" and bindings[57] == "&none"
+            assert bindings[54:56] == ["&none", "&kp LSHFT"]
+            assert bindings[58:60] == ["&lt NUM BSPC", "&trans"]
+        if name in {"SYM", "FUNC", "ADJUST"}:
+            assert bindings[54:56] == ["&none", "&trans"]
+            assert bindings[58:60] == ["&trans", "&trans"]
         assert bindings[62:] == ["&none"] * 10, name
         assert not any("SPACE" in bindings[i] for i in range(52, 57)), name
     assert "&rgb_ug" not in generated
@@ -166,9 +180,9 @@ def native_verifier_checks():
     spec.loader.exec_module(verifier)
     prefix = "<dbg> zmk: "
     log = "\n".join([
-        "[00:00:00.000,000] " + prefix + "54 tap dance pressed",
+        "[00:00:00.000,000] " + prefix + "55 tap dance pressed",
         "[00:00:00.200,000] " + prefix + "hid_listener_keycode_pressed: usage_page 0x07 keycode 0xE1",
-        "[00:00:00.600,000] " + prefix + "54 tap dance pressed",
+        "[00:00:00.600,000] " + prefix + "55 tap dance pressed",
         "[00:00:01.000,000] " + prefix + "hid_listener_keycode_pressed: usage_page 0x07 keycode 0xE1",
         *[f"[00:00:03.00{i},000] " + prefix + f"hid_listener_keycode_{state}: usage_page 0x07 keycode {code}"
           for i, (state, code) in enumerate([

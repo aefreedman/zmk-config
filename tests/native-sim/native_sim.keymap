@@ -7,24 +7,24 @@
     columns = <72>;
     events = <
         /* Shift + NUM, two arrow selections >3 seconds apart. */
-        ZMK_MOCK_PRESS(0,54,20)
-        ZMK_MOCK_PRESS(0,59,300)
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_PRESS(0,58,300)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,3100)
-        /* NUM decimal moved to52; old58 is now disabled on NUM. */
+        /* NUM decimal moved to52; Space57 is disabled on NUM. */
         ZMK_MOCK_PRESS(0,52,10)
         ZMK_MOCK_RELEASE(0,52,10)
-        ZMK_MOCK_PRESS(0,58,10)
-        ZMK_MOCK_RELEASE(0,58,10)
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
         ZMK_MOCK_PRESS(0,31,10)
         ZMK_MOCK_RELEASE(0,31,10)
-        ZMK_MOCK_RELEASE(0,59,10)
-        ZMK_MOCK_RELEASE(0,54,300)
+        ZMK_MOCK_RELEASE(0,58,10)
+        ZMK_MOCK_RELEASE(0,55,300)
         /* Fast ordinary-key rollover: Shift is one-shot, not a held mod. */
-        ZMK_MOCK_PRESS(0,54,20)
+        ZMK_MOCK_PRESS(0,55,20)
         ZMK_MOCK_PRESS(0,25,10)
         ZMK_MOCK_RELEASE(0,25,10)
-        ZMK_MOCK_RELEASE(0,54,300)
+        ZMK_MOCK_RELEASE(0,55,300)
         /* Double-tap Ctrl/Alt -> queued Ctrl+Alt consumed by A. */
         ZMK_MOCK_PRESS(0,36,20)
         ZMK_MOCK_RELEASE(0,36,20)
@@ -33,10 +33,10 @@
         ZMK_MOCK_PRESS(0,25,10)
         ZMK_MOCK_RELEASE(0,25,300)
         /* Double-tap Shift/Symbol -> one-shot symbol at the same position. */
-        ZMK_MOCK_PRESS(0,54,20)
-        ZMK_MOCK_RELEASE(0,54,20)
-        ZMK_MOCK_PRESS(0,54,20)
-        ZMK_MOCK_RELEASE(0,54,250)
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_RELEASE(0,55,20)
+        ZMK_MOCK_PRESS(0,55,20)
+        ZMK_MOCK_RELEASE(0,55,250)
         ZMK_MOCK_PRESS(0,26,10)
         ZMK_MOCK_RELEASE(0,26,10)
         ZMK_MOCK_PRESS(0,26,10)
@@ -61,24 +61,31 @@
         ZMK_MOCK_RELEASE(0,32,10)
         ZMK_MOCK_PRESS(0,33,100)
         ZMK_MOCK_RELEASE(0,33,10)
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
         ZMK_MOCK_PRESS(0,58,10)
         ZMK_MOCK_RELEASE(0,58,10)
-        ZMK_MOCK_PRESS(0,59,10)
-        ZMK_MOCK_RELEASE(0,59,10)
         /* Same toggle exits; Space and Colemak U return to typing. */
         ZMK_MOCK_PRESS(0,44,10)
         ZMK_MOCK_RELEASE(0,44,10)
-        ZMK_MOCK_PRESS(0,58,10)
-        ZMK_MOCK_RELEASE(0,58,10)
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
         ZMK_MOCK_PRESS(0,20,10)
         ZMK_MOCK_RELEASE(0,20,10)
         /* Plain Enter above Space is independent of the Enter/Ctrl dance. */
         ZMK_MOCK_PRESS(0,45,10)
         ZMK_MOCK_RELEASE(0,45,10)
-        /* Reserved top row and new left thumb emit nothing. */
+        /* Reserved top row and unused left outer thumb emit nothing. */
         ZMK_MOCK_PRESS(0,0,10)
         ZMK_MOCK_RELEASE(0,0,10)
         ZMK_MOCK_PRESS(0,52,10)
         ZMK_MOCK_RELEASE(0,52,10)
+        /* Vacated Shift and right-thumb slots must emit nothing. */
+        ZMK_MOCK_PRESS(0,54,10)
+        ZMK_MOCK_RELEASE(0,54,10)
+        ZMK_MOCK_PRESS(0,60,10)
+        ZMK_MOCK_RELEASE(0,60,10)
+        ZMK_MOCK_PRESS(0,61,10)
+        ZMK_MOCK_RELEASE(0,61,10)
     >;
 };

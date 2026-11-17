@@ -14,17 +14,17 @@
         ZMK_MOCK_RELEASE(0,45,400)
         ZMK_MOCK_RELEASE(0,33,250)
         /* Two separately resolved decrements: 2100 -> 2000 -> 1900. */
-        ZMK_MOCK_PRESS(0,57,20)
-        ZMK_MOCK_RELEASE(0,57,250)
-        ZMK_MOCK_PRESS(0,57,20)
-        ZMK_MOCK_RELEASE(0,57,250)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,250)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,250)
         ZMK_MOCK_PRESS(0,33,400)
         ZMK_MOCK_RELEASE(0,33,250)
         /* Double-tap decrement resets to 2000, not an extra decrement. */
-        ZMK_MOCK_PRESS(0,57,20)
-        ZMK_MOCK_RELEASE(0,57,20)
-        ZMK_MOCK_PRESS(0,57,20)
-        ZMK_MOCK_RELEASE(0,57,250)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,20)
+        ZMK_MOCK_PRESS(0,59,20)
+        ZMK_MOCK_RELEASE(0,59,250)
         ZMK_MOCK_PRESS(0,33,400)
         ZMK_MOCK_RELEASE(0,33,250)
         /* Fast remains fixed at 4000 after normal changes to 2100. */
@@ -66,7 +66,7 @@
         ZMK_MOCK_RELEASE(0,33,250)
         ZMK_MOCK_PRESS(0,44,10)
         ZMK_MOCK_RELEASE(0,44,10)
-        ZMK_MOCK_PRESS(0,58,10)
-        ZMK_MOCK_RELEASE(0,58,10)
+        ZMK_MOCK_PRESS(0,57,10)
+        ZMK_MOCK_RELEASE(0,57,10)
     >;
 };

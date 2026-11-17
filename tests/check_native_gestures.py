@@ -14,7 +14,7 @@ def verify(log):
             continue
         h, m, s, ms, us = map(int, stamp.groups())
         now = ((h * 60 + m) * 60 + s) * 1000 + ms + us / 1000
-        if "54 tap dance pressed" in line:
+        if "55 tap dance pressed" in line:
             starts.append(now)
         event = re.search(r"hid_listener_keycode_(pressed|released): usage_page 0x07 keycode 0x([0-9A-Fa-f]+)", line)
         if event:
